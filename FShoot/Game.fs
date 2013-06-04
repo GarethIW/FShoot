@@ -44,7 +44,15 @@ type FShootGame() as x =
     override x.Update (gameTime:GameTime) =
         // TODO: Add your update logic here  
         
-        particleManager.Spawn(Vector2(float32 graphics.GraphicsDevice.Viewport.Width/2.0f, 20.0f), Vector2(-3.0f + (float32(rnd.NextDouble()) * 6.0f), 0.0f), 2000.0f)
+        particleManager.Spawn(Rectangle(11,0,15,8),
+                              Vector2(float32 graphics.GraphicsDevice.Viewport.Width/2.0f, 20.0f), 
+                              Vector2(-3.0f + (float32(rnd.NextDouble()) * 6.0f), 0.0f), 
+                              Vector2(0.0f, 0.1f), 
+                              (float32(rnd.NextDouble())) * 3000.0f,
+                              Color.RoyalBlue,
+                              1.0f,
+                              0.0f,
+                              -0.2f + (float32(rnd.NextDouble()) * 0.4f))
           
         particleManager.Update(gameTime)             
         base.Update (gameTime)
@@ -52,7 +60,7 @@ type FShootGame() as x =
     /// This is called when the game should draw itself. 
     override x.Draw (gameTime:GameTime) =
         // Clear the backbuffer
-        graphics.GraphicsDevice.Clear (Color.CornflowerBlue)
+        graphics.GraphicsDevice.Clear (Color.White)
 
         particleManager.Draw(spriteBatch)
 
