@@ -28,23 +28,29 @@ module Enemies =
             this.Target.X <- this.Target.X + waveSpeed
             this.Position <- Vector2.Lerp(this.Position, this.Target, this.Speed)
 
+            
+                
+
 //            if Helper.Rand.Next(100) = 1 then
 //                this.Target <- Vector2(float32 bounds.X + (float32(Helper.Rand.NextDouble()) * float32 bounds.Width), float32 bounds.Y + (float32(Helper.Rand.NextDouble()) * float32 bounds.Height))
 
             if this.Health <= 0.0f then
                 this.Active <- false
 
+           
+
             for y in 0 .. 7 do
                 for x in 0 .. 7 do
                     if shape.[x,y] then
                         ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                                       this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
-                                                       Vector2.Zero, Vector2.Zero,
-                                                       0.0f,
-                                                       0.1f,
-                                                       this.Tint,
-                                                       (this.Size - (this.Size/2.0f)) + (float32(Helper.Rand.NextDouble()) * (this.Size)),
-                                                       0.0f, 0.0f)
+                                                        this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
+                                                        Vector2(0.0f,1.0f), Vector2.Zero,
+                                                        50.0f,
+                                                        0.1f,
+                                                        this.Tint,
+                                                        (this.Size * 0.5f) + (float32(Helper.Rand.NextDouble()) * (this.Size * 0.8f)),
+                                                        0.0f, 0.0f)
+
 
     type EnemyManager() =
         let MAX_ENEMIES = 100
@@ -64,7 +70,7 @@ module Enemies =
                     if Helper.Rand.Next(2) = 0 then
                         this.Spawn(Vector2(float32 bounds.Center.X, float32 bounds.Top - 400.0f), 0.02f, Vector2((float32 bounds.Center.X + (waveSpacing / 2.0f)) - (waveSpacing * (float32(waveColumns /2) - float32 x)), pos.Y + 450.0f), 100.0f, Color(Vector3(float32(Helper.Rand.NextDouble()) * 0.5f, float32(Helper.Rand.NextDouble()) * 0.5f, float32(Helper.Rand.NextDouble()) * 0.5f) + Vector3(0.3f,0.3f,0.3f)), waveEnemySize) 
                         this.Spawn(Vector2(float32 bounds.Center.X, float32 bounds.Top - 400.0f), 0.02f, Vector2((float32 bounds.Center.X - (waveSpacing / 2.0f)) + (waveSpacing * (float32(waveColumns /2) - float32 x)), pos.Y + 450.0f), 100.0f, Color(Vector3(float32(Helper.Rand.NextDouble()) * 0.5f, float32(Helper.Rand.NextDouble()) * 0.5f, float32(Helper.Rand.NextDouble()) * 0.5f) + Vector3(0.3f,0.3f,0.3f)), waveEnemySize) 
-                pos.Y <- pos.Y + 80.0f
+                pos.Y <- pos.Y + waveSpacing
 
         member this.Update(gameTime:GameTime, bounds: Rectangle) =
             let mutable activeCount = 0

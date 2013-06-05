@@ -39,6 +39,15 @@ type FShootGame() as x =
         let boundsRect = x.GraphicsDevice.Viewport.Bounds
         boundsRect.Inflate(-100, 0)
 
+        ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
+                                        Vector2((float32(Helper.Rand.NextDouble()) * float32 x.GraphicsDevice.Viewport.Width), -10.0f),
+                                        Vector2(0.0f,2.0f + (float32(Helper.Rand.NextDouble())*4.0f)), Vector2.Zero,
+                                        3000.0f,
+                                        0.01f,
+                                        Color(Vector3.One * float32(Helper.Rand.NextDouble()) * 0.5f),
+                                        1.0f + (float32(Helper.Rand.NextDouble()) * (2.0f)),
+                                        0.0f, 0.0f)
+
         ParticleManager.Instance.Update(gameTime)   
         EnemyManager.Instance.Update(gameTime, boundsRect)   
                
