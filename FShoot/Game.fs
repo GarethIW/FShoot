@@ -9,16 +9,16 @@ open Microsoft.Xna.Framework.Input.Touch
 open Microsoft.Xna.Framework.Storage
 open Microsoft.Xna.Framework.Content
 open Microsoft.Xna.Framework.Media
+open FShoot.Particles
+open FShoot.Enemies
 
 type FShootGame() as x =
     inherit Game()
-    static let rnd = System.Random()
     let graphics = new GraphicsDeviceManager(x)
-    let particleManager = new Particles.ParticleManager()
     let mutable spriteBatch = Unchecked.defaultof<_>
-    let mutable logoTexture = Unchecked.defaultof<_>
     do x.Content.RootDirectory <- "content"
        graphics.IsFullScreen <- false
+
 
     /// Overridden from the base Game.Initialize. Once the GraphicsDevice is setup,
     /// we'll use the viewport to initialize some values.
@@ -31,46 +31,25 @@ type FShootGame() as x =
 
     /// Load your graphics content.
     override x.LoadContent() =
-        // Create a new SpriteBatch, which can be use to draw textures.
         spriteBatch <- new SpriteBatch (graphics.GraphicsDevice)
 
-        particleManager.LoadContent(x.Content)
+        ParticleManager.Instance.LoadContent(x.Content)
 
-        // TODO: use this.Content to load your game content here eg.
-        logoTexture <- x.Content.Load<_>("particles")
+    override x.Update (gameTime:GameTime) = 
+        let boundsRect = x.GraphicsDevice.Viewport.Bounds
+        boundsRect.Inflate(-100, 0)
 
-    /// Allows the game to run logic such as updating the world,
-    /// checking for collisions, gathering input, and playing audio.
-    override x.Update (gameTime:GameTime) =
-        // TODO: Add your update logic here  
-        
-        particleManager.Spawn(Rectangle(11,0,15,8),
-                              Vector2(float32 graphics.GraphicsDevice.Viewport.Width/2.0f, 20.0f), 
-                              Vector2(-3.0f + (float32(rnd.NextDouble()) * 6.0f), 0.0f), 
-                              Vector2(0.0f, 0.1f), 
-                              (float32(rnd.NextDouble())) * 3000.0f,
-                              Color.RoyalBlue,
-                              1.0f,
-                              0.0f,
-                              -0.2f + (float32(rnd.NextDouble()) * 0.4f))
-          
-        particleManager.Update(gameTime)             
+        ParticleManager.Instance.Update(gameTime)   
+        EnemyManager.Instance.Update(gameTime, boundsRect)   
+               
         base.Update (gameTime)
 
     /// This is called when the game should draw itself. 
     override x.Draw (gameTime:GameTime) =
-        // Clear the backbuffer
         graphics.GraphicsDevice.Clear (Color.White)
 
-        particleManager.Draw(spriteBatch)
+        ParticleManager.Instance.Draw(spriteBatch)
 
-        spriteBatch.Begin()
-
-        // draw the logo
-        //spriteBatch.Draw (logoTexture, Vector2 (130.f, 200.f), Color.White);
-        spriteBatch.End()
-
-        //TODO: Add your drawing code here
         base.Draw (gameTime)
 
 
