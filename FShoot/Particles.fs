@@ -10,7 +10,7 @@ open Microsoft.Xna.Framework.Content
 
 module Particles = 
 
-    type Particle(source, pos, speed, speeddelta, life, fade, tint, scale, rot, rotspeed) as this = 
+    type Particle(source, pos, speed, speeddelta, life, fade, tint, scale, rot, rotspeed, startingalpha) as this = 
         [<DefaultValue>] val mutable Position : Vector2
         [<DefaultValue>] val mutable Speed : Vector2
         [<DefaultValue>] val mutable SpeedDelta : Vector2
@@ -35,7 +35,7 @@ module Particles =
             this.Source <- source
             this.Rotation <- rot
             this.RotationSpeed <- rotspeed
-            this.Alpha <- 1.0f
+            this.Alpha <- startingalpha
 
         member this.Update(gameTime:GameTime) =
             this.Life <- this.Life - float32 gameTime.ElapsedGameTime.TotalMilliseconds
@@ -61,25 +61,23 @@ module Particles =
             particleTexture <- content.Load<_>("particles")
 
         member this.Update(gameTime:GameTime) =
-            for p in Particles do
-                p.Update(gameTime)
-
+            Particles.ForEach(fun p -> p.Update(gameTime))
             Particles.RemoveAll(fun p -> not p.Active)
 
         member this.Draw(spriteBatch:SpriteBatch) =
             spriteBatch.Begin()
-            for p in Particles do
+            Particles.ForEach(fun p ->
                 spriteBatch.Draw(particleTexture, p.Position, 
                                  System.Nullable(p.Source), 
                                  p.Tint * p.Alpha, 
                                  p.Rotation, 
                                  Vector2(float32 p.Source.Width, float32 p.Source.Height) / 2.0f, 
                                  p.Scale, 
-                                 SpriteEffects.None, 1.0f)
+                                 SpriteEffects.None, 1.0f))
             spriteBatch.End()
 
-        member this.Spawn(source, pos, speed, speeddelta, life, fade, tint, scale, rot, rotspeed) =
-            Particles.Add(Particle(source, pos, speed, speeddelta, life, fade, tint, scale, rot, rotspeed))
+        member this.Spawn(source, pos, speed, speeddelta, life, fade, tint, scale, rot, rotspeed, startingalpha) =
+            Particles.Add(Particle(source, pos, speed, speeddelta, life, fade, tint, scale, rot, rotspeed, startingalpha))
 
    
 

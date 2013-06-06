@@ -43,7 +43,9 @@
     <None Include="App.config" />
     <Compile Include="Helper.fs" />
     <Compile Include="Particles.fs" />
+    <Compile Include="Projectiles.fs" />
     <Compile Include="Enemies.fs" />
+    <Compile Include="Hero.fs" />
     <Compile Include="Game.fs" />
     <Compile Include="Program.fs" />
     <Content Include="..\FShoot.XNA\FShoot.XNA\bin\x86\Debug\Content\particles.xnb">
