@@ -13,7 +13,7 @@ module Projectiles =
 
     type ProjectileOwner =
         | Hero = 0
-        | Projectile = 1
+        | Enemy = 1
 
     type Projectile(owner, pos, speed, life, tint, size) as this = 
         [<DefaultValue>] val mutable Owner : ProjectileOwner
@@ -40,8 +40,9 @@ module Projectiles =
                 this.Active <- false
 
             for y in 0.0f .. 4.0f .. 30.0f do
+                let dir = if this.Speed.Y < 0.0f then 1.0f else -1.0f
                 ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                            this.Position + Vector2(0.0f, y),
+                                            this.Position + (Vector2(0.0f, y) * dir),
                                             Vector2.Zero, Vector2.Zero,
                                             0.0f,
                                             0.1f,

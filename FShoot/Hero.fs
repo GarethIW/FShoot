@@ -16,6 +16,7 @@ type Hero(pos, tint) as this =
         [<DefaultValue>] val mutable Active : bool
         let mutable gunCooldownTime = 50.0f
         let mutable gunCooldown = 0.0f
+        let mutable hitbox = Rectangle(0,0,1,1)
         let mutable shape = array2D [| 
                                         [| 0.0f; 0.0f; 0.0f; 0.0f; 0.0f; 0.0f; 0.0f; 1.0f |];  
                                         [| 0.0f; 0.0f; 0.0f; 0.0f; 1.0f; 1.0f; 1.0f; 1.0f |];  
@@ -54,6 +55,35 @@ type Hero(pos, tint) as this =
                                                         (this.Size * 0.5f) + (float32(Helper.Rand.NextDouble()) * (this.Size * 0.8f)),
                                                         0.0f, 0.0f,
                                                         shape.[x,y])
+
+            hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
+                                 int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
+                                 int((Vector2(8.0f, 8.0f) * this.Size).X),
+                                 int((Vector2(8.0f, 8.0f) * this.Size).Y))
+
+            ProjectileManager.Instance.Projectiles.ForEach(fun p -> this.CheckCollision(p))
+
+        member this.CheckCollision(p:Projectile) =
+            if hitbox.Contains(int p.Position.X, int p.Position.Y) && p.Owner = ProjectileOwner.Enemy then
+                for y in 0 .. 7 do
+                    for x in 0 .. 7 do
+                        if shape.[x,y] >= 1.0f then
+                            let phb = Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size*1.4f)))).X) + int((Vector2(float32 x, float32 y) * this.Size).X),
+                                                int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size*1.4f)))).Y) + int((Vector2(float32 x, float32 y) * this.Size).Y),
+                                                int(this.Size * 1.8f),
+                                                int(this.Size * 1.8f))
+                            if phb.Contains(int p.Position.X, int p.Position.Y) then
+                                shape.[x,y] <- 0.3f
+                                p.Life <- 0.0f
+                                ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
+                                                        this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
+                                                        Vector2(-0.5f + (float32(Helper.Rand.NextDouble())), -2.0f), Vector2(0.0f,0.1f),
+                                                        1000.0f,
+                                                        0.01f,
+                                                        this.Tint,
+                                                        this.Size * 3.0f,
+                                                        0.0f, -0.5f + (float32(Helper.Rand.NextDouble())),
+                                                        1.0f)
 
         member this.Fire() =
             if gunCooldown <= 0.0f then

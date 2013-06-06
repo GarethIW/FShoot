@@ -20,7 +20,7 @@ module Enemies =
         let mutable hitbox = Rectangle(0,0,1,1)
         let shape = Array2D.init 8 8 (fun x y -> false)                 
             
-        member this.Update(gameTime:GameTime, waveSpeed: float32, bounds: Rectangle) =
+        member this.Update(gameTime:GameTime, waveSpeed: float32, waveNumber : int, bounds: Rectangle) =
             this.Target.X <- this.Target.X + waveSpeed
 
             this.Position <- Vector2.Lerp(this.Position, this.Target, this.Speed)
@@ -60,10 +60,15 @@ module Enemies =
                                                         (this.Size * 0.5f) + (float32(Helper.Rand.NextDouble()) * (this.Size * 0.8f)),
                                                         0.0f, 0.0f,
                                                         1.0f)
+
+            let mutable chance = waveNumber
+            if chance > 20 then chance <- 20
+            if Helper.Rand.Next(10 + (1000 - (chance * 50))) = 1 then
+                ProjectileManager.Instance.Spawn(ProjectileOwner.Enemy, this.Position + Vector2(0.0f, 20.0f), Vector2(0.0f, 4.0f + (float32 chance / 2.0f)), 5000.0f, Color.Purple, 4.0f)
                         
 
         member this.CheckCollision(p:Projectile) =
-            if hitbox.Contains(int p.Position.X, int p.Position.Y) then
+            if hitbox.Contains(int p.Position.X, int p.Position.Y) && p.Owner = ProjectileOwner.Hero then
                 for y in 0 .. 7 do
                     for x in 0 .. 7 do
                         if shape.[x,y] then
@@ -95,10 +100,11 @@ module Enemies =
     type EnemyManager() =
         let MAX_ENEMIES = 100
         let Enemies = [| for i in 0 .. MAX_ENEMIES -> new Enemy() |]
-        let waveEnemySize = 8.0f
-        let waveSpacing = 100.0f
-        let waveColumns = 10
-        let waveRows = 4
+        let mutable waveNumber = 0
+        let mutable waveEnemySize = 8.0f
+        let mutable waveSpacing = 100.0f
+        let mutable waveColumns = 10
+        let mutable waveRows = 4
         let mutable waveSpeed = 2.0f
         static let instance = new EnemyManager()
         static member internal Instance = instance 
@@ -108,6 +114,7 @@ module Enemies =
         // We can alter the number of columns, rows and spacing of the wave grid
         // as well as the size of the spawned enemies
         member this.NewWave(bounds: Rectangle) =
+            waveNumber <- waveNumber + 1
             let mutable pos = Vector2(float32 bounds.Center.X, float32 bounds.Top - 400.0f)
             for y in 0 .. waveRows-1 do
                 for x in 0 .. (waveColumns/2)-1 do
@@ -122,9 +129,11 @@ module Enemies =
             for e in Enemies do
                 if e.Active then 
                     activeCount <- activeCount + 1
-                    e.Update(gameTime, waveSpeed, bounds)
-                    if waveSpeed > 0.0f && e.Position.X > float32 bounds.Right then waveSpeed <- -waveSpeed
-                    if waveSpeed < 0.0f && e.Position.X < float32 bounds.Left then waveSpeed <- -waveSpeed
+                    e.Update(gameTime, waveSpeed, waveNumber, bounds)
+                    if (waveSpeed > 0.0f && e.Position.X > float32 bounds.Right) || (waveSpeed < 0.0f && e.Position.X < float32 bounds.Left) then 
+                        waveSpeed <- -waveSpeed
+                        for e in Enemies do e.Target.Y <- e.Target.Y + 10.0f
+
                     ProjectileManager.Instance.Projectiles.ForEach(fun p -> e.CheckCollision(p))
 
             if activeCount = 0 then

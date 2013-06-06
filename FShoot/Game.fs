@@ -5,8 +5,8 @@ open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Audio
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
-open Microsoft.Xna.Framework.Input.Touch
-open Microsoft.Xna.Framework.Storage
+//open Microsoft.Xna.Framework.Input.Touch
+//open Microsoft.Xna.Framework.Storage
 open Microsoft.Xna.Framework.Content
 open Microsoft.Xna.Framework.Media
 open FShoot.Particles
@@ -21,14 +21,15 @@ type FShootGame() as x =
     let mutable hero = Unchecked.defaultof<_>
 
     do x.Content.RootDirectory <- "content"
+       graphics.PreferredBackBufferWidth <- 1280
+       graphics.PreferredBackBufferHeight <- 720
        graphics.IsFullScreen <- false
 
     /// Overridden from the base Game.Initialize. Once the GraphicsDevice is setup,
     /// we'll use the viewport to initialize some values.
     override x.Initialize() = 
-        graphics.PreferredBackBufferWidth <- 1280
-        graphics.PreferredBackBufferHeight <- 720
-        graphics.ApplyChanges()
+        
+        //graphics.ApplyChanges()
         
         base.Initialize()
 
@@ -37,6 +38,7 @@ type FShootGame() as x =
         spriteBatch <- new SpriteBatch (graphics.GraphicsDevice)
         hero <- new Hero(Vector2(float32 x.GraphicsDevice.Viewport.Bounds.Center.X, float32 x.GraphicsDevice.Viewport.Bounds.Bottom - 50.0f), Color.DeepSkyBlue)
         ParticleManager.Instance.LoadContent(x.Content)
+
 
     override x.Update (gameTime:GameTime) = 
         let boundsRect = x.GraphicsDevice.Viewport.Bounds
