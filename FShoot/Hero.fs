@@ -89,3 +89,21 @@ type Hero(pos, tint) as this =
             if gunCooldown <= 0.0f then
                 gunCooldown <- gunCooldownTime
                 ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+
+        member this.RegenHealth() =
+            // Give the hero 1 block of life back
+            let mutable found = false
+            for y in 0 .. 7 do
+                    for x in 0 .. 7 do
+                        if (shape.[x,y] >= 0.3f && shape.[x,y] < 1.0f) && found = false then
+                            found <- true
+                            shape.[x,y] <- 1.0f
+                            ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
+                                                        this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
+                                                        Vector2.Zero, Vector2.Zero,
+                                                        0.0f,
+                                                        0.1f,
+                                                        this.Tint,
+                                                        this.Size * 2.0f,
+                                                        0.0f, 0.0f,
+                                                        1.0f)

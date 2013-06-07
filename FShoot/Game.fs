@@ -62,7 +62,7 @@ type FShootGame() as x =
         if ks.IsKeyDown(Keys.Z) || ks.IsKeyDown(Keys.Space) || ks.IsKeyDown(Keys.LeftControl) || ks.IsKeyDown(Keys.Enter) then hero.Fire()
 
         hero.Update(gameTime, boundsRect)
-        EnemyManager.Instance.Update(gameTime, boundsRect)   
+        EnemyManager.Instance.Update(gameTime, boundsRect, hero)   
         ProjectileManager.Instance.Update(gameTime)   
         ParticleManager.Instance.Update(gameTime)   
 
