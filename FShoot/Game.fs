@@ -23,6 +23,7 @@ type FShootGame() as x =
     do x.Content.RootDirectory <- "content"
        graphics.PreferredBackBufferWidth <- 1280
        graphics.PreferredBackBufferHeight <- 720
+       graphics.GraphicsProfile <- GraphicsProfile.HiDef
        graphics.IsFullScreen <- false
 
     /// Overridden from the base Game.Initialize. Once the GraphicsDevice is setup,
