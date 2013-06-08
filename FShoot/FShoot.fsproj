@@ -43,7 +43,6 @@
     <None Include="App.config" />
     <Compile Include="Helper.fs" />
     <Compile Include="Particles.fs" />
-    <Compile Include="Projectiles.fs" />
     <Compile Include="Hero.fs" />
     <Compile Include="Enemies.fs" />
     <Compile Include="Game.fs" />
@@ -52,6 +51,8 @@
       <Link>content\particles.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Compile Include="Projectiles.fs" />
+    <Compile Include="Powerups.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework">
