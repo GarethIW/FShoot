@@ -12,6 +12,7 @@ open Microsoft.Xna.Framework.Media
 open FShoot.Particles
 open FShoot.Projectiles
 open FShoot.Enemies
+open FShoot.Powerups
 
 type FShootGame() as x =
     inherit Game()
@@ -56,8 +57,8 @@ type FShootGame() as x =
                                         1.0f)
 
         let ks = Keyboard.GetState()
-        if ks.IsKeyDown(Keys.Left) || ks.IsKeyDown(Keys.A) then hero.Speed.X <- hero.Speed.X - 0.3f
-        else if ks.IsKeyDown(Keys.Right) || ks.IsKeyDown(Keys.D) then hero.Speed.X <- hero.Speed.X + 0.3f
+        if ks.IsKeyDown(Keys.Left) || ks.IsKeyDown(Keys.A) then hero.Move(-1.0f) // hero.Speed.X <- hero.Speed.X - 0.3f
+        else if ks.IsKeyDown(Keys.Right) || ks.IsKeyDown(Keys.D) then hero.Move (1.0f) //then hero.Speed.X <- hero.Speed.X + 0.3f
         else hero.Speed.X <- MathHelper.Lerp(hero.Speed.X, 0.0f, 0.1f)
 
         if ks.IsKeyDown(Keys.Z) || ks.IsKeyDown(Keys.Space) || ks.IsKeyDown(Keys.LeftControl) || ks.IsKeyDown(Keys.Enter) then hero.Fire()
@@ -66,6 +67,7 @@ type FShootGame() as x =
         EnemyManager.Instance.Update(gameTime, boundsRect, hero)   
         ProjectileManager.Instance.Update(gameTime)   
         ParticleManager.Instance.Update(gameTime)   
+        PowerupManager.Instance.Update(gameTime)
 
                
         base.Update (gameTime)

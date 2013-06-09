@@ -6,6 +6,7 @@ open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Content
 open FShoot.Particles
 open FShoot.Projectiles
+open FShoot.Powerups
 
 module Enemies = 
 
@@ -78,6 +79,11 @@ module Enemies =
                                                         this.Size * 4.0f,
                                                         0.0f, -0.2f + (float32(Helper.Rand.NextDouble()) * 0.4f),
                                                         0.3f)
+                if Helper.Rand.Next(5) = 1 || this.IsBoss || PowerupManager.Instance.KillsSinceLastPowerup >=4 then 
+                    PowerupManager.Instance.Spawn(this.Position, Vector2(0.0f, 4.0f), 3000.0f)
+                    PowerupManager.Instance.KillsSinceLastPowerup <- 0
+                else
+                    PowerupManager.Instance.KillsSinceLastPowerup <- PowerupManager.Instance.KillsSinceLastPowerup + 1
 
             // Let's let the enemy shoot!
             // We do this randomly based on the wave number, so the higher the wave the more chance the enemy has to shoot
@@ -92,15 +98,15 @@ module Enemies =
                 timeSinceLastShot <- 0.0f
                 if this.IsBoss then
                     // Boss has a random "spread" for the projectile
-                    ProjectileManager.Instance.Spawn(ProjectileOwner.Enemy, this.Position + Vector2(-20.0f + (float32(Helper.Rand.NextDouble()) * 40.0f), 20.0f), Vector2(0.0f, 4.0f + (float32 waveNumber / 5.0f)), 5000.0f, Color.Purple, 4.0f)
+                    ProjectileManager.Instance.Spawn(ProjectileOwner.Enemy, this.Position + Vector2(-20.0f + (float32(Helper.Rand.NextDouble()) * 40.0f), 20.0f), Vector2(0.0f, 4.0f + (float32 waveNumber / 10.0f)), 5000.0f, Color.Purple, 4.0f)
                 else
                     // Standard enemy always shoots from the centre
-                    ProjectileManager.Instance.Spawn(ProjectileOwner.Enemy, this.Position + Vector2(0.0f, 20.0f), Vector2(0.0f, 4.0f + (float32 waveNumber / 5.0f)), 5000.0f, Color.Purple, 4.0f)
+                    ProjectileManager.Instance.Spawn(ProjectileOwner.Enemy, this.Position + Vector2(0.0f, 20.0f), Vector2(0.0f, 4.0f + (float32 waveNumber / 10.0f)), 5000.0f, Color.Purple, 4.0f)
                         
 
         member this.CheckCollision(p:Projectile) =
             // If the projectile is inside the enemy's hitbox
-            if hitbox.Contains(int p.Position.X, int p.Position.Y) && p.Owner = ProjectileOwner.Hero then
+            if hitbox.Contains(int p.Position.X, int p.Position.Y) && this.Position.Y > -20.0f && p.Owner = ProjectileOwner.Hero then
                 // Now check each of the enemy's "pixels" in turn
                 for y in 0 .. 7 do
                     for x in 0 .. 7 do

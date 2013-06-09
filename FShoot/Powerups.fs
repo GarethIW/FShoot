@@ -30,21 +30,24 @@ module Powerups =
             if this.Life <= 0.0f then
                 this.Active <- false
 
-            ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                        this.Position + Vector2(20.0f * float32(Math.Cos(gameTime.TotalGameTime.TotalMilliseconds)), 20.0f * float32(Math.Sin(gameTime.TotalGameTime.TotalMilliseconds))),
+            for r in 1.0f .. 6.0f do
+                ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
+                                        this.Position + Vector2(20.0f * float32(Math.Cos(gameTime.TotalGameTime.TotalMilliseconds * (float(r) / float(2)))), 20.0f * float32(Math.Sin(gameTime.TotalGameTime.TotalMilliseconds * (float(r) / float(2))))),
                                         Vector2.Zero, Vector2.Zero,
                                         0.0f,
-                                        0.1f,
-                                        Color.Orange,
-                                        3.0f,
+                                        0.2f,
+                                        Color.DarkOrange,
+                                        6.0f,
                                         0.0f, 0.0f,
                                         1.0f)
 
     type PowerupManager() as this =
         [<DefaultValue>] val mutable Powerups : List<Powerup>
+        [<DefaultValue>] val mutable KillsSinceLastPowerup : int
         static let instance = new PowerupManager()
         static member internal Instance = instance 
         do
+            this.KillsSinceLastPowerup <- 0
             this.Powerups <- new List<Powerup>()
 
         member this.Update(gameTime:GameTime) =
