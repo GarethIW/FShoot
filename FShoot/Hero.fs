@@ -11,7 +11,6 @@ open FShoot.Powerups
 type Hero(pos, tint) as this = 
         [<DefaultValue>] val mutable Position : Vector2
         [<DefaultValue>] val mutable Speed : Vector2
-        [<DefaultValue>] val mutable Health : float32
         [<DefaultValue>] val mutable Tint : Color
         [<DefaultValue>] val mutable Size : float32
         [<DefaultValue>] val mutable Active : bool
@@ -33,43 +32,46 @@ type Hero(pos, tint) as this =
             this.Position <- pos
             this.Tint <- tint
             this.Size <- 8.0f
+            this.Active <- true
 
         member this.Update(gameTime:GameTime, bounds: Rectangle) =
-            this.Position <- this.Position + this.Speed
-            this.Position <- Vector2.Clamp(this.Position, Vector2(float32 bounds.X, float32 bounds.Y), Vector2(float32 bounds.Right, float32 bounds.Bottom))
 
-            if this.Health <= 0.0f then
-                this.Active <- false
+            if this.Active = true then
+                this.Position <- this.Position + this.Speed
+                this.Position <- Vector2.Clamp(this.Position, Vector2(float32 bounds.X, float32 bounds.Y), Vector2(float32 bounds.Right, float32 bounds.Bottom))
 
-            gunCooldownTime <- 250.0f - ((float32 powerupLevel) * 20.0f)
-            if gunCooldownTime < 50.0f then gunCooldownTime <- 50.0f
+                gunCooldownTime <- 250.0f - ((float32 powerupLevel) * 20.0f)
+                if gunCooldownTime < 50.0f then gunCooldownTime <- 50.0f
 
-            this.Speed.X <- MathHelper.Clamp(this.Speed.X, -(3.0f + (0.5f * float32 powerupLevel)), (3.0f + (0.5f * float32 powerupLevel)))
-            this.Speed.X <- MathHelper.Clamp(this.Speed.X, -10.0f, 10.0f)
+                this.Speed.X <- MathHelper.Clamp(this.Speed.X, -(3.0f + (0.5f * float32 powerupLevel)), (3.0f + (0.5f * float32 powerupLevel)))
+                this.Speed.X <- MathHelper.Clamp(this.Speed.X, -10.0f, 10.0f)
 
-            if gunCooldown > 0.0f then
-                gunCooldown <- gunCooldown - float32 gameTime.ElapsedGameTime.TotalMilliseconds
+                if gunCooldown > 0.0f then
+                    gunCooldown <- gunCooldown - float32 gameTime.ElapsedGameTime.TotalMilliseconds
 
-            for y in 0 .. 7 do
-                for x in 0 .. 7 do
-                    if shape.[x,y] > 0.0f then
-                        ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                                        this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
-                                                        Vector2(0.0f,1.0f), Vector2.Zero,
-                                                        0.0f,
-                                                        0.1f,
-                                                        this.Tint,
-                                                        (this.Size * 0.5f) + (float32(Helper.Rand.NextDouble()) * (this.Size * 0.8f)),
-                                                        0.0f, 0.0f,
-                                                        shape.[x,y])
+                let mutable found = false
+                for y in 0 .. 7 do
+                    for x in 0 .. 7 do
+                        if shape.[x,y] > 0.0f then
+                            if shape.[x,y] > 0.5f then found <- true
+                            ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
+                                                            this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
+                                                            Vector2(0.0f,1.0f), Vector2.Zero,
+                                                            0.0f,
+                                                            0.1f,
+                                                            this.Tint,
+                                                            (this.Size * 0.5f) + (float32(Helper.Rand.NextDouble()) * (this.Size * 0.8f)),
+                                                            0.0f, 0.0f,
+                                                            shape.[x,y])
+                if found = false then this.Die()
 
-            hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
-                                 int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
-                                 int((Vector2(8.0f, 8.0f) * this.Size).X),
-                                 int((Vector2(8.0f, 8.0f) * this.Size).Y))
+                hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
+                                     int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
+                                     int((Vector2(8.0f, 8.0f) * this.Size).X),
+                                     int((Vector2(8.0f, 8.0f) * this.Size).Y))
 
-            ProjectileManager.Instance.Projectiles.ForEach(fun p -> this.CheckProjectileCollision(p))
-            PowerupManager.Instance.Powerups.ForEach(fun p -> this.CheckPowerupCollision(p))
+                ProjectileManager.Instance.Projectiles.ForEach(fun p -> this.CheckProjectileCollision(p))
+                PowerupManager.Instance.Powerups.ForEach(fun p -> this.CheckPowerupCollision(p))
 
         member this.CheckProjectileCollision(p:Projectile) =
             if hitbox.Contains(int p.Position.X, int p.Position.Y) && p.Owner = ProjectileOwner.Enemy then
@@ -95,13 +97,39 @@ type Hero(pos, tint) as this =
                                                         1.0f)
 
         member this.CheckPowerupCollision(p:Powerup) =
+            hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
+                                     int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
+                                     int((Vector2(8.0f, 8.0f) * this.Size).X),
+                                     int((Vector2(8.0f, 8.0f) * this.Size).Y))
             hitbox.Inflate(20,20)
             if hitbox.Contains(int p.Position.X, int p.Position.Y) then
                 p.Active <- false
                 if powerupLevel< 10 then powerupLevel <- powerupLevel + 1
 
+        member this.CheckEnemyCollision(hb:Rectangle) =
+            hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
+                                     int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
+                                     int((Vector2(8.0f, 8.0f) * this.Size).X),
+                                     int((Vector2(8.0f, 8.0f) * this.Size).Y))
+            hitbox.Inflate(-20,-20)
+            if hitbox.Intersects(hb) then this.Die()
+
         member this.Move(dir) =
             this.Speed.X <- this.Speed.X + ((0.3f + (0.1f * (float32 powerupLevel))) * dir)
+
+        member this.Die() = 
+            for y in 0 .. 7 do
+                    for x in 0 .. 7 do
+                        ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
+                                                        this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
+                                                        Vector2(-2.5f + (float32(Helper.Rand.NextDouble()) * 5.0f), -5.0f), Vector2(0.0f,0.1f),
+                                                        1000.0f,
+                                                        0.01f,
+                                                        this.Tint,
+                                                        this.Size * 3.0f,
+                                                        0.0f, -0.5f + (float32(Helper.Rand.NextDouble())),
+                                                        shape.[x,y])
+            this.Active <- false
 
         member this.Fire() =
             if gunCooldown <= 0.0f then

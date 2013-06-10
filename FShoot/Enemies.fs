@@ -22,7 +22,7 @@ module Enemies =
         let mutable hitbox = Rectangle(0,0,1,1)
         let shape = Array2D.init 8 8 (fun x y -> 0.0f)                 
             
-        member this.Update(gameTime:GameTime, waveSpeed: float32, waveNumber : int, bounds: Rectangle) =
+        member this.Update(gameTime:GameTime, waveSpeed: float32, waveNumber : int, bounds: Rectangle, hero: Hero) =
             if not this.IsBoss then
                 // Standard enemies move left/right according to the wave direction
                 this.Target.X <- this.Target.X + waveSpeed
@@ -38,6 +38,9 @@ module Enemies =
                                  int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
                                  int((Vector2(8.0f, 8.0f) * this.Size).X),
                                  int((Vector2(8.0f, 8.0f) * this.Size).Y))
+
+            // Check for entire enemy colliding with hero ship (hero dies in this case)
+            hero.CheckEnemyCollision(hitbox)
             
             // Generate the enemy's "heart" particle
             ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
@@ -88,10 +91,10 @@ module Enemies =
             // Let's let the enemy shoot!
             // We do this randomly based on the wave number, so the higher the wave the more chance the enemy has to shoot
             // Set the difficulty curve to determine the wave that is *most difficult*, the game will gradually increase in difficulty until that wave then will not increase further
-            let difficultyCurve = 50
+            let difficultyCurve = 75
             timeSinceLastShot <- timeSinceLastShot + float32 gameTime.ElapsedGameTime.TotalMilliseconds
             let mutable chance = waveNumber
-            if this.IsBoss then chance <- chance + (chance * 2)
+            if this.IsBoss then chance <- chance + (chance / 2)
             if timeSinceLastShot > (float32 difficultyCurve * 100.0f) - (float32 waveNumber * 100.0f) then chance <- difficultyCurve
             if chance > difficultyCurve then chance <- difficultyCurve
             if Helper.Rand.Next(10 + (1000 - (chance * (1000 / difficultyCurve)))) = 1 then
@@ -126,6 +129,9 @@ module Enemies =
                                     // If it's a standard enemy, we destroy the "pixel" entirely
                                     shape.[x,y] <- 0.0f
                                 p.Life <- 0.0f
+                                if Helper.Rand.Next(100) = 1 then 
+                                        PowerupManager.Instance.Spawn(this.Position, Vector2(0.0f, 4.0f), 3000.0f)
+                                        PowerupManager.Instance.KillsSinceLastPowerup <- 0
                                 if shape.[x,y] <= 0.0f then
                                     // Destroyed pixel particle
                                     ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
@@ -199,7 +205,7 @@ module Enemies =
             for e in Enemies do
                 if e.Active then 
                     activeCount <- activeCount + 1
-                    e.Update(gameTime, waveSpeed, waveNumber, bounds)
+                    e.Update(gameTime, waveSpeed, waveNumber, bounds, hero)
 
                     // Move the wave in the opposite direction if one of the enemies hits the edge of our boundaries
                     if (waveSpeed > 0.0f && e.Position.X > float32 bounds.Right) || (waveSpeed < 0.0f && e.Position.X < float32 bounds.Left) then 
