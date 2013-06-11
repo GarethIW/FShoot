@@ -97,25 +97,28 @@ type Hero(pos, tint) as this =
                                                         1.0f)
 
         member this.CheckPowerupCollision(p:Powerup) =
-            hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
-                                     int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
-                                     int((Vector2(8.0f, 8.0f) * this.Size).X),
-                                     int((Vector2(8.0f, 8.0f) * this.Size).Y))
-            hitbox.Inflate(20,20)
-            if hitbox.Contains(int p.Position.X, int p.Position.Y) then
-                p.Active <- false
-                if powerupLevel< 10 then powerupLevel <- powerupLevel + 1
+            if this.Active then
+                hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
+                                         int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
+                                         int((Vector2(8.0f, 8.0f) * this.Size).X),
+                                         int((Vector2(8.0f, 8.0f) * this.Size).Y))
+                hitbox.Inflate(20,20)
+                if hitbox.Contains(int p.Position.X, int p.Position.Y) then
+                    p.Active <- false
+                    if powerupLevel< 9 then powerupLevel <- powerupLevel + 1
 
         member this.CheckEnemyCollision(hb:Rectangle) =
-            hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
-                                     int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
-                                     int((Vector2(8.0f, 8.0f) * this.Size).X),
-                                     int((Vector2(8.0f, 8.0f) * this.Size).Y))
-            hitbox.Inflate(-20,-20)
-            if hitbox.Intersects(hb) then this.Die()
+            if this.Active then
+                hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
+                                         int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
+                                         int((Vector2(8.0f, 8.0f) * this.Size).X),
+                                         int((Vector2(8.0f, 8.0f) * this.Size).Y))
+                hitbox.Inflate(-20,-20)
+                if hitbox.Intersects(hb) then this.Die()
 
         member this.Move(dir) =
-            this.Speed.X <- this.Speed.X + ((0.3f + (0.1f * (float32 powerupLevel))) * dir)
+            if this.Active then
+                this.Speed.X <- this.Speed.X + ((0.3f + (0.1f * (float32 powerupLevel))) * dir)
 
         member this.Die() = 
             for y in 0 .. 7 do
@@ -132,23 +135,22 @@ type Hero(pos, tint) as this =
             this.Active <- false
 
         member this.Fire() =
-            if gunCooldown <= 0.0f then
-                gunCooldown <- gunCooldownTime
-                match powerupLevel with
-                | i when i >= 0 && i < 3 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
-                | i when i >= 3 && i < 6 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(-10.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
-                                            ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(10.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
-                | i when i >= 6 && i < 9 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
-                                            ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(-10.0f, -40.0f), Vector2(-1.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
-                                            ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(10.0f, -40.0f), Vector2(1.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
-                |          i when i >= 9 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
-                                            ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(-10.0f, -40.0f), Vector2(-1.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
-                                            ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(10.0f, -40.0f), Vector2(1.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
-                                            ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(-30.0f, 20.0f), Vector2(-2.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
-                                            ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(30.0f, 20.0f), Vector2(2.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+            if this.Active then
+                if gunCooldown <= 0.0f then
+                    gunCooldown <- gunCooldownTime
+                    match powerupLevel with
+                    | i when i >= 0 && i < 3 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                    | i when i >= 3 && i < 6 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(-10.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                                                ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(10.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                    | i when i >= 6 && i < 9 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                                                ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(-10.0f, -40.0f), Vector2(-1.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                                                ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(10.0f, -40.0f), Vector2(1.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                    |          i when i >= 9 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                                                ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(-10.0f, -40.0f), Vector2(-1.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                                                ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(10.0f, -40.0f), Vector2(1.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                                                ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(-30.0f, 20.0f), Vector2(-2.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                                                ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(30.0f, 20.0f), Vector2(2.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
 
-
-                
 
         member this.RegenHealth() =
             // Give the hero 1 block of life back
