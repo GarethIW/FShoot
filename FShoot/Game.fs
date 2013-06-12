@@ -13,6 +13,7 @@ open FShoot.Particles
 open FShoot.Projectiles
 open FShoot.Enemies
 open FShoot.Powerups
+open FShoot.Text
 
 type FShootGame() as x =
     inherit Game()
@@ -69,7 +70,39 @@ type FShootGame() as x =
         ParticleManager.Instance.Update(gameTime)   
         PowerupManager.Instance.Update(gameTime)
 
-               
+        TextManager.Instance.DrawText(Vector2(float32 x.GraphicsDevice.Viewport.Width, float32 x.GraphicsDevice.Viewport.Height)/2.0f,
+                                      "FSHOOT",
+                                      35.0f,
+                                      20.0f,
+                                      0.0f,
+                                      Color.Red,
+                                      true)
+
+        TextManager.Instance.DrawText(Vector2(200.0f, 600.0f),
+                                      "TEST TEXT",
+                                      5.0f,
+                                      1.0f,
+                                      0.0f,
+                                      Color.Black,
+                                      false)
+
+        TextManager.Instance.DrawText(Vector2(600.0f, 600.0f),
+                                      "DOT.MATRIX",
+                                      5.0f,
+                                      2.0f,
+                                      0.5f,
+                                      Color.Black,
+                                      false)
+
+        TextManager.Instance.DrawText(Vector2(800.0f, 500.0f),
+                                      "JITTERY",
+                                      6.0f,
+                                      2.0f,
+                                      1.0f,
+                                      Color.Magenta,
+                                      true)
+
+
         base.Update (gameTime)
 
     /// This is called when the game should draw itself. 

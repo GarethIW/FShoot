@@ -44,6 +44,7 @@
     <Compile Include="Helper.fs" />
     <Compile Include="Audio.fs" />
     <Compile Include="Particles.fs" />
+    <Compile Include="Text.fs" />
     <Compile Include="Projectiles.fs" />
     <Compile Include="Powerups.fs" />
     <Compile Include="Hero.fs" />
