@@ -23,10 +23,9 @@ module ParticlesTwo =
         Rotation : float32
         RotationSpeed : float32 
         Active : bool }
-
-    let mutable ParticlesList : Particle list = []
-    let AddParticle particle = ParticlesList <- particle :: ParticlesList
-    let RemoveInactiveParticles = ParticlesList <- ParticlesList |> List.filter(fun p -> p.Alpha > 0.0f)
+            
+    let AddParticle particles particle = particle :: particles
+    let RemoveInactiveParticles particles = particles |> List.filter(fun p -> p.Alpha > 0.0f)
 
     let UpdateParticle (gameTime:GameTime) particle = 
         let decay = 
