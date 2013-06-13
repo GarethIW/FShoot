@@ -50,23 +50,25 @@ module Particles =
                     this.Active <- false
 
 
-    type ParticleManager() =
+    type ParticleManager() as this =
         let MAX_PARTICLES = 1000
-        let Particles = new List<Particle>()
+        [<DefaultValue>] val mutable Particles : List<Particle>
         let mutable particleTexture = Unchecked.defaultof<_>
         static let instance = new ParticleManager()
-        static member internal Instance = instance 
+        static member internal Instance = instance
+        do
+            this.Particles <- new List<Particle>()
 
         member this.LoadContent(content:ContentManager) = 
             particleTexture <- content.Load<_>("particles")
 
         member this.Update(gameTime:GameTime) =
-            Particles.ForEach(fun p -> p.Update(gameTime))
-            Particles.RemoveAll(fun p -> not p.Active) |> ignore
+            this.Particles.ForEach(fun p -> p.Update(gameTime))
+            this.Particles.RemoveAll(fun p -> not p.Active) |> ignore
 
         member this.Draw(spriteBatch:SpriteBatch) =
             spriteBatch.Begin()
-            Particles.ForEach(fun p ->
+            this.Particles.ForEach(fun p ->
                 spriteBatch.Draw(particleTexture, p.Position, 
                                  System.Nullable(p.Source), 
                                  p.Tint * p.Alpha, 
@@ -77,7 +79,7 @@ module Particles =
             spriteBatch.End()
 
         member this.Spawn(source, pos, speed, speeddelta, life, fade, tint, scale, rot, rotspeed, startingalpha) =
-            Particles.Add(Particle(source, pos, speed, speeddelta, life, fade, tint, scale, rot, rotspeed, startingalpha))
+            this.Particles.Add(Particle(source, pos, speed, speeddelta, life, fade, tint, scale, rot, rotspeed, startingalpha))
 
    
 

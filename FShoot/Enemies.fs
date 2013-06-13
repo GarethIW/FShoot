@@ -93,7 +93,7 @@ module Enemies =
             // Set the difficulty curve to determine the wave that is *most difficult*, the game will gradually increase in difficulty until that wave then will not increase further
             let difficultyCurve = 60
             timeSinceLastShot <- timeSinceLastShot + float32 gameTime.ElapsedGameTime.TotalMilliseconds
-            let mutable chance = waveNumber + (hero.PowerupLevel)
+            let mutable chance = waveNumber + (3 * hero.PowerupLevel)
             if this.IsBoss then chance <- chance * 2
             if timeSinceLastShot > (float32 difficultyCurve * 100.0f) - (float32 waveNumber * 100.0f) then chance <- difficultyCurve
             if chance > difficultyCurve then chance <- difficultyCurve
