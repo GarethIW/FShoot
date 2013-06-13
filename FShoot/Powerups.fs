@@ -53,6 +53,7 @@ module Powerups =
         member this.Update(gameTime:GameTime) =
             this.Powerups.ForEach(fun p -> p.Update(gameTime))
             this.Powerups.RemoveAll(fun p -> not p.Active)
+            ()
 
         member this.Spawn(pos, speed, life) =
             this.Powerups.Add(Powerup(pos, speed, life))

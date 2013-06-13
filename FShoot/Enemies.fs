@@ -229,6 +229,8 @@ module Enemies =
                     waveColumns <- waveColumns + 2
                 this.NewWave(bounds)
 
+            ()
+
         member this.Spawn(boss, pos, speed, target, health, tint, size) =
             let en = Array.find<Enemy>(fun en -> en.Active = false) Enemies
             en.IsBoss <- boss

@@ -63,6 +63,7 @@ module Particles =
         member this.Update(gameTime:GameTime) =
             Particles.ForEach(fun p -> p.Update(gameTime))
             Particles.RemoveAll(fun p -> not p.Active)
+            ()
 
         member this.Draw(spriteBatch:SpriteBatch) =
             spriteBatch.Begin()

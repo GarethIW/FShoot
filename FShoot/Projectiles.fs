@@ -61,6 +61,7 @@ module Projectiles =
         member this.Update(gameTime:GameTime) =
             this.Projectiles.ForEach(fun p -> p.Update(gameTime))
             this.Projectiles.RemoveAll(fun p -> not p.Active)
+            ()
 
         member this.Spawn(owner, pos, speed, life, tint, size) =
             this.Projectiles.Add(Projectile(owner, pos, speed, life, tint, size))

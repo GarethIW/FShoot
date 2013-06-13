@@ -139,7 +139,7 @@ type Hero(pos, tint) as this =
                 if gunCooldown <= 0.0f then
                     gunCooldown <- gunCooldownTime
                     match powerupLevel with
-                    | i when i >= 0 && i < 3 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
+                    |          i when i  < 3 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
                     | i when i >= 3 && i < 6 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(-10.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
                                                 ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(10.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
                     | i when i >= 6 && i < 9 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
