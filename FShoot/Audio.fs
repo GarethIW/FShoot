@@ -12,12 +12,12 @@ open Microsoft.Xna.Framework.Audio
 module Audio = 
 
     type AudioManager() =
-        let SFX = new List<SoundEffect>()
+        let SFX = new Dictionary<string, SoundEffect>()
         static let instance = new AudioManager()
         static member internal Instance = instance 
 
-//        member this.LoadContent(content:ContentManager) = 
-//            SFX.Add(content.Load<SoundEffect>("shoot"))
+        member this.LoadContent(content:ContentManager) = 
+            SFX.Add("shoot", content.Load<SoundEffect>("sfx/shoot"))
 //            SFX.Add(content.Load<SoundEffect>("damage-enemy"))
 //            SFX.Add(content.Load<SoundEffect>("powerup"))
 //            SFX.Add(content.Load<SoundEffect>("powerdown"))

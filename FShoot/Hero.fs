@@ -7,6 +7,7 @@ open Microsoft.Xna.Framework.Content
 open FShoot.Particles
 open FShoot.Projectiles
 open FShoot.Powerups
+open FShoot.Audio
 
 type Hero(pos, tint) as this = 
         [<DefaultValue>] val mutable Position : Vector2
@@ -14,7 +15,7 @@ type Hero(pos, tint) as this =
         [<DefaultValue>] val mutable Tint : Color
         [<DefaultValue>] val mutable Size : float32
         [<DefaultValue>] val mutable Active : bool
-        let mutable powerupLevel = 0
+        [<DefaultValue>] val mutable PowerupLevel : int
         let mutable gunCooldownTime = 250.0f
         let mutable gunCooldown = 0.0f
         let mutable hitbox = Rectangle(0,0,1,1)
@@ -33,6 +34,7 @@ type Hero(pos, tint) as this =
             this.Tint <- tint
             this.Size <- 8.0f
             this.Active <- true
+            this.PowerupLevel <- 0
 
         member this.Update(gameTime:GameTime, bounds: Rectangle) =
 
@@ -40,10 +42,10 @@ type Hero(pos, tint) as this =
                 this.Position <- this.Position + this.Speed
                 this.Position <- Vector2.Clamp(this.Position, Vector2(float32 bounds.X, float32 bounds.Y), Vector2(float32 bounds.Right, float32 bounds.Bottom))
 
-                gunCooldownTime <- 250.0f - ((float32 powerupLevel) * 20.0f)
+                gunCooldownTime <- 250.0f - ((float32 this.PowerupLevel) * 20.0f)
                 if gunCooldownTime < 50.0f then gunCooldownTime <- 50.0f
 
-                this.Speed.X <- MathHelper.Clamp(this.Speed.X, -(3.0f + (0.5f * float32 powerupLevel)), (3.0f + (0.5f * float32 powerupLevel)))
+                this.Speed.X <- MathHelper.Clamp(this.Speed.X, -(3.0f + (0.5f * float32 this.PowerupLevel)), (3.0f + (0.5f * float32 this.PowerupLevel)))
                 this.Speed.X <- MathHelper.Clamp(this.Speed.X, -10.0f, 10.0f)
 
                 if gunCooldown > 0.0f then
@@ -85,7 +87,7 @@ type Hero(pos, tint) as this =
                             if phb.Contains(int p.Position.X, int p.Position.Y) then
                                 shape.[x,y] <- 0.3f
                                 p.Life <- 0.0f
-                                if powerupLevel > 0 then powerupLevel <- powerupLevel - 1
+                                if this.PowerupLevel > 0 then this.PowerupLevel <- this.PowerupLevel - 1
                                 ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
                                                         this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
                                                         Vector2(-0.5f + (float32(Helper.Rand.NextDouble())), -2.0f), Vector2(0.0f,0.1f),
@@ -105,7 +107,7 @@ type Hero(pos, tint) as this =
                 hitbox.Inflate(20,20)
                 if hitbox.Contains(int p.Position.X, int p.Position.Y) then
                     p.Active <- false
-                    if powerupLevel< 9 then powerupLevel <- powerupLevel + 1
+                    if this.PowerupLevel< 9 then this.PowerupLevel <- this.PowerupLevel + 1
 
         member this.CheckEnemyCollision(hb:Rectangle) =
             if this.Active then
@@ -118,7 +120,7 @@ type Hero(pos, tint) as this =
 
         member this.Move(dir) =
             if this.Active then
-                this.Speed.X <- this.Speed.X + ((0.3f + (0.1f * (float32 powerupLevel))) * dir)
+                this.Speed.X <- this.Speed.X + ((0.3f + (0.1f * (float32 this.PowerupLevel))) * dir)
 
         member this.Die() = 
             for y in 0 .. 7 do
@@ -138,7 +140,8 @@ type Hero(pos, tint) as this =
             if this.Active then
                 if gunCooldown <= 0.0f then
                     gunCooldown <- gunCooldownTime
-                    match powerupLevel with
+                    AudioManager.Instance.Play("shoot", 0.1f) |> ignore
+                    match this.PowerupLevel with
                     |          i when i  < 3 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(0.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
                     | i when i >= 3 && i < 6 -> ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(-10.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)
                                                 ProjectileManager.Instance.Spawn(ProjectileOwner.Hero, this.Position + Vector2(10.0f, -40.0f), Vector2(0.0f, -10.0f), 2000.0f, Color.Red, 4.0f)

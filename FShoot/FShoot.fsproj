@@ -55,6 +55,10 @@
       <Link>content\particles.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\FShoot.XNA\FShoot.XNA\bin\x86\Debug\Content\SFX\shoot.xnb">
+      <Link>content\SFX\shoot.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework">

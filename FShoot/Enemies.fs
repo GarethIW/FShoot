@@ -93,7 +93,7 @@ module Enemies =
             // Set the difficulty curve to determine the wave that is *most difficult*, the game will gradually increase in difficulty until that wave then will not increase further
             let difficultyCurve = 60
             timeSinceLastShot <- timeSinceLastShot + float32 gameTime.ElapsedGameTime.TotalMilliseconds
-            let mutable chance = waveNumber
+            let mutable chance = waveNumber + (hero.PowerupLevel)
             if this.IsBoss then chance <- chance * 2
             if timeSinceLastShot > (float32 difficultyCurve * 100.0f) - (float32 waveNumber * 100.0f) then chance <- difficultyCurve
             if chance > difficultyCurve then chance <- difficultyCurve
@@ -107,7 +107,7 @@ module Enemies =
                     ProjectileManager.Instance.Spawn(ProjectileOwner.Enemy, this.Position + Vector2(0.0f, 20.0f), Vector2(0.0f, 4.0f + (float32 waveNumber / 10.0f)), 5000.0f, Color.Purple, 4.0f)
                         
 
-        member this.CheckCollision(p:Projectile, waveNumber:int) =
+        member this.CheckCollision(p:Projectile, waveNumber:int, hero:Hero) =
             // If the projectile is inside the enemy's hitbox
             if hitbox.Contains(int p.Position.X, int p.Position.Y) && this.Position.Y > -20.0f && p.Owner = ProjectileOwner.Hero then
                 // Now check each of the enemy's "pixels" in turn
@@ -129,7 +129,7 @@ module Enemies =
                                     shape.[x,y] <- shape.[x,y] - (1.0f / (1.0f + float32(waveNumber/5)))
                                 if shape.[x,y] <= 0.3f then shape.[x,y] <- 0.0f
                                 p.Life <- 0.0f
-                                if Helper.Rand.Next(100) = 1 then 
+                                if Helper.Rand.Next(20 + (hero.PowerupLevel * 20)) = 1 then 
                                         PowerupManager.Instance.Spawn(this.Position, Vector2(0.0f, 4.0f), 3000.0f)
                                         PowerupManager.Instance.KillsSinceLastPowerup <- 0
                                 if shape.[x,y] <= 0.0f then
@@ -213,7 +213,7 @@ module Enemies =
                         for e in Enemies do e.Target.Y <- e.Target.Y + 10.0f
 
                     // Check for projectile collisions against each enemy and each projectile
-                    ProjectileManager.Instance.Projectiles.ForEach(fun p -> e.CheckCollision(p, waveNumber))
+                    ProjectileManager.Instance.Projectiles.ForEach(fun p -> e.CheckCollision(p, waveNumber, hero))
 
             // If there are no enemies left, start a new wave
             if activeCount = 0 then
@@ -228,8 +228,6 @@ module Enemies =
                     // Every 2 waves, we add two new columns (up to a max of 12)
                     waveColumns <- waveColumns + 2
                 this.NewWave(bounds)
-
-            ()
 
         member this.Spawn(boss, pos, speed, target, health, tint, size) =
             let en = Array.find<Enemy>(fun en -> en.Active = false) Enemies

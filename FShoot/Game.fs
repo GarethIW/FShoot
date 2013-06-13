@@ -14,6 +14,7 @@ open FShoot.Projectiles
 open FShoot.Enemies
 open FShoot.Powerups
 open FShoot.Text
+open FShoot.Audio
 
 type FShootGame() as x =
     inherit Game()
@@ -39,16 +40,13 @@ type FShootGame() as x =
     /// Overridden from the base Game.Initialize. Once the GraphicsDevice is setup,
     /// we'll use the viewport to initialize some values.
     override x.Initialize() = 
-        
-        //graphics.ApplyChanges()
-        
         base.Initialize()
 
-    /// Load your graphics content.
     override x.LoadContent() =
         spriteBatch <- new SpriteBatch (graphics.GraphicsDevice)
         hero <- new Hero(Vector2(float32 x.GraphicsDevice.Viewport.Bounds.Center.X, float32 x.GraphicsDevice.Viewport.Bounds.Bottom - 50.0f), Color.DeepSkyBlue)
         ParticleManager.Instance.LoadContent(x.Content)
+        AudioManager.Instance.LoadContent(x.Content)
 
 
     override x.Update (gameTime:GameTime) = 
@@ -130,13 +128,13 @@ type FShootGame() as x =
                 if ks.IsKeyDown(Keys.Z) || ks.IsKeyDown(Keys.Space) || ks.IsKeyDown(Keys.LeftControl) || ks.IsKeyDown(Keys.Enter) then hero.Fire()
 
                 hero.Update(gameTime, boundsRect)
-                ProjectileManager.Instance.Update(gameTime)   
-                PowerupManager.Instance.Update(gameTime)
-                EnemyManager.Instance.Update(gameTime, boundsRect, hero) 
+                ProjectileManager.Instance.Update(gameTime) |> ignore 
+                PowerupManager.Instance.Update(gameTime) |> ignore
+                EnemyManager.Instance.Update(gameTime, boundsRect, hero) |> ignore
 
                 if not hero.Active then showingTitleScreen <- true
                     
-            ParticleManager.Instance.Update(gameTime)  
+            ParticleManager.Instance.Update(gameTime) |> ignore
 
             lks <- ks
             lgs <- gs
