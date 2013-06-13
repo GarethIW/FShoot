@@ -21,6 +21,8 @@ type FShootGame() as x =
     let graphics = new GraphicsDeviceManager(x)
     let mutable spriteBatch = Unchecked.defaultof<_>
 
+    let mutable particleTexture = Unchecked.defaultof<_>
+
     let mutable hero = Unchecked.defaultof<_>
 
     let mutable lks = Keyboard.GetState()
@@ -47,6 +49,7 @@ type FShootGame() as x =
         hero <- new Hero(Vector2(float32 x.GraphicsDevice.Viewport.Bounds.Center.X, float32 x.GraphicsDevice.Viewport.Bounds.Bottom - 50.0f), Color.DeepSkyBlue)
         ParticleManager.Instance.LoadContent(x.Content)
         AudioManager.Instance.LoadContent(x.Content)
+        particleTexture <- x.Content.Load<Texture2D>("particles")
 
 
     override x.Update (gameTime:GameTime) = 
@@ -117,9 +120,6 @@ type FShootGame() as x =
             else
                 let boundsRect = x.GraphicsDevice.Viewport.Bounds
                 boundsRect.Inflate(-100, 0)
-
-                
-
                 
                 if ks.IsKeyDown(Keys.Left) || ks.IsKeyDown(Keys.A) then hero.Move(-1.0f) // hero.Speed.X <- hero.Speed.X - 0.3f
                 else if ks.IsKeyDown(Keys.Right) || ks.IsKeyDown(Keys.D) then hero.Move (1.0f) //then hero.Speed.X <- hero.Speed.X + 0.3f
@@ -135,6 +135,10 @@ type FShootGame() as x =
                 if not hero.Active then showingTitleScreen <- true
                     
             ParticleManager.Instance.Update(gameTime) |> ignore
+            ParticlesTwo.ParticlesList <- ParticlesTwo.ParticlesList |> List.map(fun p -> ParticlesTwo.UpdateParticle gameTime p)
+            ParticlesTwo.RemoveInactiveParticles 
+
+            x.Window.Title <- sprintf "Particles: %i" ParticlesTwo.ParticlesList.Length
 
             lks <- ks
             lgs <- gs
@@ -146,6 +150,8 @@ type FShootGame() as x =
         graphics.GraphicsDevice.Clear (Color.White)
 
         ParticleManager.Instance.Draw(spriteBatch)
+        ParticlesTwo.ParticlesList |> ParticlesTwo.DrawParticles spriteBatch particleTexture
+
 
         base.Draw (gameTime)
 

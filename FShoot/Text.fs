@@ -8,7 +8,7 @@ open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Content
 open Microsoft.Xna.Framework.Audio
-open Particles
+open ParticlesTwo
 
 module Text = 
 
@@ -36,15 +36,20 @@ module Text =
                     for x in 0..4 do
                         position.X <- position.X + padding
                         if textData.[y , x + datax] = 1 then
-                            ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                position,
-                                Vector2.Zero, Vector2.Zero,
-                                0.0f,
-                                0.1f,
-                                tint,
-                                (if jitter then (size * 0.5f) + (float32(Helper.Rand.NextDouble()) * (size * 0.8f)) else size),
-                                0.0f, 0.0f,
-                                1.0f)
+                            ParticlesTwo.AddParticle {
+                                Source = Rectangle(1,1,1,1)
+                                Position = position
+                                Speed = Vector2.Zero
+                                SpeedDelta = Vector2.Zero
+                                Life = 0.0f
+                                FadeSpeed = 0.1f
+                                Tint = tint
+                                Scale = (if jitter then (size * 0.5f) + (float32(Helper.Rand.NextDouble()) * (size * 0.8f)) else size)
+                                Rotation = 0.0f
+                                RotationSpeed = 0.0f
+                                Alpha = 1.0f
+                                Active = true
+                                }
                         position.X <- position.X + size + padding
                     position.X <- position.X - (5.0f * size) - (10.0f * padding)
                     position.Y <- position.Y + size + padding
