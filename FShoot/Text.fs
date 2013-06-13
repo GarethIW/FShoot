@@ -26,7 +26,7 @@ module Text =
         static member internal Instance = instance 
 
 
-        member this.DrawText(pos:Vector2, text:string, size:float32, spacing:float32, padding:float32, tint:Color, jitter:bool) =
+        member this.DrawText (addParticle:Particle->unit) (pos:Vector2, text:string, size:float32, spacing:float32, padding:float32, tint:Color, jitter:bool) =
             let totalsize = new Vector2(((float32 text.Length * 5.0f) * size) + ((float32 text.Length * spacing) - spacing) + ((float32 text.Length * padding) * 10.0f), (size * 5.0f) + (padding * 10.0f))
             let mutable position = (pos - (totalsize/2.0f)) + Vector2(size/2.0f,size/2.0f)
             for c in 0 .. text.Length-1 do
@@ -36,7 +36,7 @@ module Text =
                     for x in 0..4 do
                         position.X <- position.X + padding
                         if textData.[y , x + datax] = 1 then
-                            ParticlesTwo.AddParticle {
+                            addParticle {
                                 Source = Rectangle(1,1,1,1)
                                 Position = position
                                 Speed = Vector2.Zero
