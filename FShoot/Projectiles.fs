@@ -7,8 +7,8 @@ open System.Linq
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Content
-open Particles
-
+open FShoot.Particles
+    
 module Projectiles = 
 
     type ProjectileOwner =
@@ -32,7 +32,7 @@ module Projectiles =
             this.Tint <- tint
             this.Size <- size
 
-        member this.Update(gameTime:GameTime) =
+        member this.Update (addParticle:Particle->unit) (gameTime:GameTime) =
             this.Life <- this.Life - float32 gameTime.ElapsedGameTime.TotalMilliseconds
             this.Position <- this.Position + this.Speed
 
@@ -41,15 +41,20 @@ module Projectiles =
 
             for y in 0.0f .. 4.0f .. 30.0f do
                 let dir = if this.Speed.Y < 0.0f then 1.0f else -1.0f
-                ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                            this.Position + (Vector2(0.0f, y) * dir),
-                                            Vector2.Zero, Vector2.Zero,
-                                            0.0f,
-                                            0.1f,
-                                            this.Tint,
-                                            this.Size,
-                                            0.0f, 0.0f,
-                                            (1.0f/30.0f) * (30.0f - y))
+                addParticle {
+                    Source = Rectangle(1,1,1,1)
+                    Position = this.Position + (Vector2(0.0f, y) * dir)
+                    Speed = Vector2.Zero
+                    SpeedDelta = Vector2.Zero
+                    Life = 0.0f
+                    FadeSpeed = 0.1f
+                    Tint = this.Tint
+                    Scale = this.Size
+                    Rotation = 0.0f
+                    RotationSpeed = 0.0f
+                    Alpha = (1.0f/30.0f) * (30.0f - y)
+                    Active = true
+                    }
 
     type ProjectileManager() as this =
         [<DefaultValue>] val mutable Projectiles : List<Projectile>
@@ -58,8 +63,8 @@ module Projectiles =
         do
             this.Projectiles <- new List<Projectile>()
 
-        member this.Update(gameTime:GameTime) =
-            this.Projectiles.ForEach(fun p -> p.Update(gameTime))
+        member this.Update addParticle (gameTime:GameTime) =
+            this.Projectiles.ForEach(fun p -> p.Update addParticle (gameTime))
             this.Projectiles.RemoveAll(fun p -> not p.Active) |> ignore
             
 
