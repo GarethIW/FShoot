@@ -22,7 +22,7 @@ module Enemies =
         let mutable hitbox = Rectangle(0,0,1,1)
         let shape = Array2D.init 8 8 (fun x y -> 0.0f)                 
             
-        member this.Update(gameTime:GameTime, waveSpeed: float32, waveNumber : int, bounds: Rectangle, hero: Hero) =
+        member this.Update (addParticle:Particle->unit) (gameTime:GameTime, waveSpeed: float32, waveNumber : int, bounds: Rectangle, hero: Hero) =
             if not this.IsBoss then
                 // Standard enemies move left/right according to the wave direction
                 this.Target.X <- this.Target.X + waveSpeed
@@ -40,18 +40,23 @@ module Enemies =
                                  int((Vector2(8.0f, 8.0f) * this.Size).Y))
 
             // Check for entire enemy colliding with hero ship (hero dies in this case)
-            hero.CheckEnemyCollision(hitbox)
+            hero.CheckEnemyCollision addParticle (hitbox)
             
             // Generate the enemy's "heart" particle
-            ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                                        this.Position,
-                                                        Vector2(0.0f,0.0f), Vector2.Zero,
-                                                        0.0f,
-                                                        0.1f,
-                                                        this.Tint,
-                                                        ((this.Size * 4.0f) * 0.5f) + (float32(Helper.Rand.NextDouble()) * ((this.Size * 4.0f) * 0.8f)),
-                                                        0.0f, 0.0f,
-                                                        0.3f)
+            addParticle {
+                Source = Rectangle(1,1,1,1)
+                Position = this.Position
+                Speed = Vector2(0.0f,0.0f)
+                SpeedDelta = Vector2.Zero
+                Life = 0.0f
+                FadeSpeed = 0.01f
+                Tint = this.Tint
+                Scale = ((this.Size * 4.0f) * 0.5f) + (float32(Helper.Rand.NextDouble()) * ((this.Size * 4.0f) * 0.8f))
+                Rotation = 0.0f
+                RotationSpeed = 0.0f
+                Alpha = 0.3f
+                Active = true
+                }
 
             // We don't *draw* an enemy, per se, we spawn a new particle for each active "pixel" in the 8x8 grid
             // We can alter the life and fade speed to produce trails, but need to balance for speed
@@ -61,27 +66,39 @@ module Enemies =
                     if shape.[x,y] > 0.0f then
                         // As long as one "pixel" of the enemy is still intact, the enemy is active and we can generate a particle this frame
                         this.Active <- true
-                        ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                                        this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
-                                                        Vector2(0.0f,1.0f), Vector2.Zero,
-                                                        0.0f,
-                                                        0.1f,
-                                                        this.Tint,
-                                                        (this.Size * 0.5f) + (float32(Helper.Rand.NextDouble()) * (this.Size * 0.8f)),
-                                                        0.0f, 0.0f,
-                                                        shape.[x,y])
+                        addParticle {
+                            Source = Rectangle(1,1,1,1)
+                            Position = this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size)
+                            Speed = Vector2(0.0f,1.0f)
+                            SpeedDelta = Vector2.Zero
+                            Life = 0.0f
+                            FadeSpeed = 0.1f
+                            Tint = this.Tint
+                            Scale = (this.Size * 0.5f) + (float32(Helper.Rand.NextDouble()) * (this.Size * 0.8f))
+                            Rotation = 0.0f 
+                            RotationSpeed = 0.0f
+                            Alpha = shape.[x,y]
+                            Active = true
+                            }
+
 
             if not this.Active then
                 // Enemy died, produce a death particle
-                ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                                        this.Position,
-                                                        Vector2(0.0f,0.0f), Vector2(0.0f,0.1f),
-                                                        500.0f,
-                                                        0.01f,
-                                                        this.Tint,
-                                                        this.Size * 4.0f,
-                                                        0.0f, -0.2f + (float32(Helper.Rand.NextDouble()) * 0.4f),
-                                                        0.3f)
+                addParticle {
+                    Source = Rectangle(1,1,1,1)
+                    Position = this.Position
+                    Speed = Vector2(0.0f,1.0f)
+                    SpeedDelta = Vector2(0.0f,0.1f)
+                    Life = 500.0f
+                    FadeSpeed = 0.01f
+                    Tint = this.Tint
+                    Scale = this.Size * 4.0f
+                    Rotation = 0.0f 
+                    RotationSpeed = -0.2f + (float32(Helper.Rand.NextDouble()) * 0.4f)
+                    Alpha = 0.3f
+                    Active = true
+                    }
+
                 if Helper.Rand.Next(5) = 1 || this.IsBoss || PowerupManager.Instance.KillsSinceLastPowerup >=4 then 
                     PowerupManager.Instance.Spawn(this.Position, Vector2(0.0f, 4.0f), 3000.0f)
                     PowerupManager.Instance.KillsSinceLastPowerup <- 0
@@ -107,7 +124,7 @@ module Enemies =
                     ProjectileManager.Instance.Spawn(ProjectileOwner.Enemy, this.Position + Vector2(0.0f, 20.0f), Vector2(0.0f, 4.0f + (float32 waveNumber / 10.0f)), 5000.0f, Color.Purple, 4.0f)
                         
 
-        member this.CheckCollision(p:Projectile, waveNumber:int, hero:Hero) =
+        member this.CheckCollision (addParticle:Particle->unit) (p:Projectile, waveNumber:int, hero:Hero) =
             // If the projectile is inside the enemy's hitbox
             if hitbox.Contains(int p.Position.X, int p.Position.Y) && this.Position.Y > -20.0f && p.Owner = ProjectileOwner.Hero then
                 // Now check each of the enemy's "pixels" in turn
@@ -134,26 +151,37 @@ module Enemies =
                                         PowerupManager.Instance.KillsSinceLastPowerup <- 0
                                 if shape.[x,y] <= 0.0f then
                                     // Destroyed pixel particle
-                                    ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                                            this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
-                                                            Vector2(-0.5f + (float32(Helper.Rand.NextDouble())), -2.0f), Vector2(0.0f,0.1f),
-                                                            1000.0f,
-                                                            0.01f,
-                                                            this.Tint,
-                                                            this.Size,
-                                                            0.0f, -0.5f + (float32(Helper.Rand.NextDouble())),
-                                                            1.0f)
+                                    addParticle {
+                                        Source = Rectangle(1,1,1,1)
+                                        Position = this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size)
+                                        Speed = Vector2(-0.5f + (float32(Helper.Rand.NextDouble())), -2.0f)
+                                        SpeedDelta = Vector2(0.0f,0.1f)
+                                        Life = 1000.0f
+                                        FadeSpeed = 0.01f
+                                        Tint = this.Tint
+                                        Scale = this.Size
+                                        Rotation = 0.0f 
+                                        RotationSpeed = -0.5f + (float32(Helper.Rand.NextDouble()))
+                                        Alpha = 1.0f
+                                        Active = true
+                                        }
+
                                 else
                                     // Boss "shield" particle
-                                    ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                                            this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
-                                                            Vector2.Zero, Vector2.Zero,
-                                                            0.0f,
-                                                            0.05f,
-                                                            this.Tint,
-                                                            this.Size * 2.0f,
-                                                            0.0f, 0.0f,
-                                                            1.0f)
+                                    addParticle {
+                                        Source = Rectangle(1,1,1,1)
+                                        Position = this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size)
+                                        Speed = Vector2.Zero
+                                        SpeedDelta = Vector2.Zero
+                                        Life = 0.0f
+                                        FadeSpeed = 0.05f
+                                        Tint = this.Tint
+                                        Scale = this.Size * 2.0f
+                                        Rotation = 0.0f 
+                                        RotationSpeed = 0.0f
+                                        Alpha = 1.0f
+                                        Active = true
+                                        }
         
         member this.GenerateShape() =
             // Generate a random shape for the ship
@@ -200,12 +228,12 @@ module Enemies =
                     pos.Y <- pos.Y + waveSpacing
                 if enemyCount = 0 then this.NewWave(bounds)
 
-        member this.Update(gameTime : GameTime, bounds : Rectangle, hero : Hero) =
+        member this.Update (addParticle:Particle->unit) (gameTime : GameTime, bounds : Rectangle, hero : Hero) =
             let mutable activeCount = 0
             for e in Enemies do
                 if e.Active then 
                     activeCount <- activeCount + 1
-                    e.Update(gameTime, waveSpeed, waveNumber, bounds, hero)
+                    e.Update addParticle (gameTime, waveSpeed, waveNumber, bounds, hero)
 
                     // Move the wave in the opposite direction if one of the enemies hits the edge of our boundaries
                     if (waveSpeed > 0.0f && e.Position.X > float32 bounds.Right) || (waveSpeed < 0.0f && e.Position.X < float32 bounds.Left) then 
@@ -213,12 +241,12 @@ module Enemies =
                         for e in Enemies do e.Target.Y <- e.Target.Y + 10.0f
 
                     // Check for projectile collisions against each enemy and each projectile
-                    ProjectileManager.Instance.Projectiles.ForEach(fun p -> e.CheckCollision(p, waveNumber, hero))
+                    ProjectileManager.Instance.Projectiles.ForEach(fun p -> e.CheckCollision addParticle (p, waveNumber, hero))
 
             // If there are no enemies left, start a new wave
             if activeCount = 0 then
                 waveNumber <- waveNumber + 1
-                hero.RegenHealth()
+                hero.RegenHealth addParticle
                 // This is where we introduce some "progression" into the game
                 if waveNumber % 6 = 0 && waveRows < 4 then
                     // Every 6 waves, we add a new row and reset the columns (up to a max of 4 rows)

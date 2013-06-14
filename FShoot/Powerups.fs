@@ -7,7 +7,7 @@ open System.Linq
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Content
-open Particles
+open FShoot.Particles
 
 module Powerups = 
 
@@ -23,7 +23,7 @@ module Powerups =
             this.Speed <- speed
             this.Life <- life
 
-        member this.Update(gameTime:GameTime) =
+        member this.Update (addParticle:Particle->unit) (gameTime:GameTime) =
             this.Life <- this.Life - float32 gameTime.ElapsedGameTime.TotalMilliseconds
             this.Position <- this.Position + this.Speed
 
@@ -31,15 +31,20 @@ module Powerups =
                 this.Active <- false
 
             for r in 1.0f .. 6.0f do
-                ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                        this.Position + Vector2(20.0f * float32(Math.Cos(gameTime.TotalGameTime.TotalMilliseconds * (float(r) / float(2)))), 20.0f * float32(Math.Sin(gameTime.TotalGameTime.TotalMilliseconds * (float(r) / float(2))))),
-                                        Vector2.Zero, Vector2.Zero,
-                                        0.0f,
-                                        0.2f,
-                                        Color.DarkOrange,
-                                        6.0f,
-                                        0.0f, 0.0f,
-                                        1.0f)
+                addParticle {
+                    Source = Rectangle(1,1,1,1)
+                    Position = this.Position + Vector2(20.0f * float32(Math.Cos(gameTime.TotalGameTime.TotalMilliseconds * (float(r) / float(2)))), 20.0f * float32(Math.Sin(gameTime.TotalGameTime.TotalMilliseconds * (float(r) / float(2)))))
+                    Speed = Vector2.Zero
+                    SpeedDelta = Vector2.Zero
+                    Life = 0.0f
+                    FadeSpeed = 0.2f
+                    Tint = Color.DarkOrange
+                    Scale = 6.0f
+                    Rotation = 0.0f
+                    RotationSpeed = 0.0f
+                    Alpha = 1.0f
+                    Active = true
+                    }
 
     type PowerupManager() as this =
         [<DefaultValue>] val mutable Powerups : List<Powerup>
@@ -50,8 +55,8 @@ module Powerups =
             this.KillsSinceLastPowerup <- 0
             this.Powerups <- new List<Powerup>()
 
-        member this.Update(gameTime:GameTime) =
-            this.Powerups.ForEach(fun p -> p.Update(gameTime))
+        member this.Update addParticle (gameTime:GameTime) =
+            this.Powerups.ForEach(fun p -> p.Update addParticle (gameTime))
             this.Powerups.RemoveAll(fun p -> not p.Active) |> ignore
 
         member this.Spawn(pos, speed, life) =
