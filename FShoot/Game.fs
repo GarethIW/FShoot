@@ -5,8 +5,6 @@ open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Audio
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
-//open Microsoft.Xna.Framework.Input.Touch
-//open Microsoft.Xna.Framework.Storage
 open Microsoft.Xna.Framework.Content
 open Microsoft.Xna.Framework.Media
 open FShoot.Particles
@@ -15,6 +13,11 @@ open FShoot.Enemies
 open FShoot.Powerups
 open FShoot.Text
 open FShoot.Audio
+open ParticlesTwo
+
+type GameState = {
+    Particles : Particle list
+}
 
 type FShootGame() as x =
     inherit Game()
@@ -27,6 +30,8 @@ type FShootGame() as x =
 
     let mutable lks = Keyboard.GetState()
     let mutable lgs = GamePad.GetState(PlayerIndex.One)
+
+    let mutable gameState = { Particles = [] }
 
     // Awesome gamestate here!
     let mutable showingTitleScreen = true
@@ -78,7 +83,9 @@ type FShootGame() as x =
                                     Vector2(float32 x.GraphicsDevice.Viewport.Width, float32 x.GraphicsDevice.Viewport.Height)/4.0f) +
                                     Vector2(float32(Helper.Rand.NextDouble()) * (float32 x.GraphicsDevice.Viewport.Width / 2.0f), float32(Helper.Rand.NextDouble()) * (float32 x.GraphicsDevice.Viewport.Height / 2.0f))
 
-                TextManager.Instance.DrawText((if titlePopTime > 0.0f then titlePopPos else Vector2(float32 x.GraphicsDevice.Viewport.Width, float32 x.GraphicsDevice.Viewport.Height)/2.0f),
+                let addParticle p = 
+                    gameState <- { gameState with Particles = ParticlesTwo.AddParticle gameState.Particles p }
+                TextManager.Instance.DrawText addParticle ((if titlePopTime > 0.0f then titlePopPos else Vector2(float32 x.GraphicsDevice.Viewport.Width, float32 x.GraphicsDevice.Viewport.Height)/2.0f),
                                           "FSHOOT",
                                           (if titlePopTime > 0.0f then 35.0f else 20.0f),
                                           20.0f,
@@ -135,10 +142,11 @@ type FShootGame() as x =
                 if not hero.Active then showingTitleScreen <- true
                     
             ParticleManager.Instance.Update(gameTime) |> ignore
-            ParticlesTwo.ParticlesList <- ParticlesTwo.ParticlesList |> List.map(fun p -> ParticlesTwo.UpdateParticle gameTime p)
-            ParticlesTwo.RemoveInactiveParticles 
+            
+            gameState <- { gameState with Particles = gameState.Particles |> List.map(fun p -> ParticlesTwo.UpdateParticle gameTime p) }
+            gameState <- { gameState with Particles = gameState.Particles |> ParticlesTwo.RemoveInactiveParticles }
 
-            x.Window.Title <- sprintf "Particles: %i" ParticlesTwo.ParticlesList.Length
+            x.Window.Title <- sprintf "Particles: %i" gameState.Particles.Length
 
             lks <- ks
             lgs <- gs
@@ -150,7 +158,7 @@ type FShootGame() as x =
         graphics.GraphicsDevice.Clear (Color.White)
 
         ParticleManager.Instance.Draw(spriteBatch)
-        ParticlesTwo.ParticlesList |> ParticlesTwo.DrawParticles spriteBatch particleTexture
+        gameState.Particles |> ParticlesTwo.DrawParticles spriteBatch particleTexture
 
 
         base.Draw (gameTime)
