@@ -133,8 +133,6 @@ type FShootGame() as x =
             lks <- ks
             lgs <- gs
 
-            x.Window.Title <- sprintf "Particles %i" ParticleManager.Instance.Particles.Count
-
         base.Update (gameTime)
 
     /// This is called when the game should draw itself. 

@@ -81,7 +81,7 @@ type Hero(pos, tint) as this =
                                      int((Vector2(8.0f, 8.0f) * this.Size).Y))
 
                 ProjectileManager.Instance.Projectiles.ForEach(fun p -> this.CheckProjectileCollision addParticle (p))
-                PowerupManager.Instance.Powerups.ForEach(fun p -> this.CheckPowerupCollision(p))
+                PowerupManager.Instance.Powerups.ForEach(fun p -> this.CheckPowerupCollision(addParticle:Particle->unit)(p))
 
         member this.CheckProjectileCollision (addParticle:Particle->unit) (p:Projectile) =
             if hitbox.Contains(int p.Position.X, int p.Position.Y) && p.Owner = ProjectileOwner.Enemy then
@@ -96,7 +96,7 @@ type Hero(pos, tint) as this =
                                 shape.[x,y] <- 0.3f
                                 p.Life <- 0.0f
                                 if this.PowerupLevel > 0 then this.PowerupLevel <- this.PowerupLevel - 1
-				TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                                TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
                                           sprintf "POWER DOWN",
                                           4.0f,
                                           2.0f,
@@ -119,7 +119,7 @@ type Hero(pos, tint) as this =
                                     Active = true
                                     }
 
-        member this.CheckPowerupCollision(p:Powerup) =
+        member this.CheckPowerupCollision (addParticle:Particle->unit) (p:Powerup) =
             if this.Active then
                 hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
                                          int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
@@ -130,7 +130,7 @@ type Hero(pos, tint) as this =
                     p.Active <- false
                     if this.PowerupLevel< 9 then 
                         this.PowerupLevel <- this.PowerupLevel + 1
-                        TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                        TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
                                           sprintf "POWER UP",
                                           4.0f,
                                           2.0f,
@@ -140,7 +140,7 @@ type Hero(pos, tint) as this =
                                           false)
                     else
                         this.Score <- this.Score + 500
-                        TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                        TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
                                           sprintf "500",
                                           5.0f,
                                           2.0f,

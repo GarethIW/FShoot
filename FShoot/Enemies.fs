@@ -50,7 +50,7 @@ module Enemies =
                 Speed = Vector2(0.0f,0.0f)
                 SpeedDelta = Vector2.Zero
                 Life = 0.0f
-                FadeSpeed = 0.01f
+                FadeSpeed = 0.1f
                 Tint = this.Tint
                 Scale = ((this.Size * 4.0f) * 0.5f) + (float32(Helper.Rand.NextDouble()) * ((this.Size * 4.0f) * 0.8f))
                 Rotation = 0.0f
@@ -102,7 +102,7 @@ module Enemies =
 
                 let award = (if this.IsBoss then 1000 else 100)
                 hero.Score <- hero.Score + award
-                TextManager.Instance.DrawText(this.Position,
+                TextManager.Instance.DrawText addParticle (this.Position,
                                           sprintf "%i" award,
                                           4.0f,
                                           2.0f,
@@ -162,7 +162,7 @@ module Enemies =
                                         PowerupManager.Instance.KillsSinceLastPowerup <- 0
                                 if shape.[x,y] <= 0.0f then
                                     // Destroyed pixel particle
-				    hero.Score <- hero.Score + 1
+                                    hero.Score <- hero.Score + 1
                                     addParticle {
                                         Source = Rectangle(1,1,1,1)
                                         Position = this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size)
@@ -257,7 +257,7 @@ module Enemies =
 
             // If there are no enemies left, start a new wave
             if activeCount = 0 then
-                TextManager.Instance.DrawText(Vector2(float32 bounds.Left, float32 bounds.Top) + (Vector2(float32 bounds.Width, float32 bounds.Height)/2.0f),
+                TextManager.Instance.DrawText addParticle (Vector2(float32 bounds.Left, float32 bounds.Top) + (Vector2(float32 bounds.Width, float32 bounds.Height)/2.0f),
                                           sprintf "WAVE %i" (waveNumber + 1),
                                           30.0f,
                                           20.0f,
