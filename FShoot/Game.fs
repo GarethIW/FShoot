@@ -13,7 +13,6 @@ open FShoot.Enemies
 open FShoot.Powerups
 open FShoot.Text
 open FShoot.Audio
-open ParticlesTwo
 
 type GameState = {
     Particles : Particle list
@@ -52,7 +51,7 @@ type FShootGame() as x =
     override x.LoadContent() =
         spriteBatch <- new SpriteBatch (graphics.GraphicsDevice)
         hero <- new Hero(Vector2(float32 x.GraphicsDevice.Viewport.Bounds.Center.X, float32 x.GraphicsDevice.Viewport.Bounds.Bottom - 50.0f), Color.DeepSkyBlue)
-        ParticleManager.Instance.LoadContent(x.Content)
+        //ParticleManager.Instance.LoadContent(x.Content)
         AudioManager.Instance.LoadContent(x.Content)
         particleTexture <- x.Content.Load<Texture2D>("particles")
 
@@ -61,17 +60,25 @@ type FShootGame() as x =
         if x.IsActive then
             let ks = Keyboard.GetState()
             let gs = GamePad.GetState(PlayerIndex.One)
+            
+            let addParticle p = 
+                    gameState <- { gameState with Particles = AddParticle gameState.Particles p }
 
             // Starfield
-            ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
-                                                Vector2((float32(Helper.Rand.NextDouble()) * float32 x.GraphicsDevice.Viewport.Width), -10.0f),
-                                                Vector2(0.0f,2.0f + (float32(Helper.Rand.NextDouble())*4.0f)), Vector2.Zero,
-                                                3000.0f,
-                                                0.01f,
-                                                Color(Vector3.One * float32(Helper.Rand.NextDouble()) * 0.5f),
-                                                1.0f + (float32(Helper.Rand.NextDouble()) * (2.0f)),
-                                                0.0f, 0.0f,
-                                                1.0f)
+            addParticle {
+                Source = Rectangle(1,1,1,1)
+                Position = Vector2((float32(Helper.Rand.NextDouble()) * float32 x.GraphicsDevice.Viewport.Width), -10.0f)
+                Speed = Vector2(0.0f,2.0f + (float32(Helper.Rand.NextDouble())*4.0f))
+                SpeedDelta = Vector2.Zero
+                Life = 3000.0f
+                FadeSpeed = 0.1f
+                Tint = Color(Vector3.One * float32(Helper.Rand.NextDouble()) * 0.5f)
+                Scale = 1.0f + (float32(Helper.Rand.NextDouble()) * (2.0f))
+                Rotation = 0.0f
+                RotationSpeed = 0.0f
+                Alpha = 1.0f
+                Active = true
+                }
 
             // Title screen! (this is *not* how to do gamestate, but 1GAM does not give me time to write a gamestate management engine in F#!)
             if showingTitleScreen then 
@@ -83,8 +90,7 @@ type FShootGame() as x =
                                     Vector2(float32 x.GraphicsDevice.Viewport.Width, float32 x.GraphicsDevice.Viewport.Height)/4.0f) +
                                     Vector2(float32(Helper.Rand.NextDouble()) * (float32 x.GraphicsDevice.Viewport.Width / 2.0f), float32(Helper.Rand.NextDouble()) * (float32 x.GraphicsDevice.Viewport.Height / 2.0f))
 
-                let addParticle p = 
-                    gameState <- { gameState with Particles = ParticlesTwo.AddParticle gameState.Particles p }
+                
                 TextManager.Instance.DrawText addParticle ((if titlePopTime > 0.0f then titlePopPos else Vector2(float32 x.GraphicsDevice.Viewport.Width, float32 x.GraphicsDevice.Viewport.Height)/2.0f),
                                           "FSHOOT",
                                           (if titlePopTime > 0.0f then 35.0f else 20.0f),
@@ -92,30 +98,6 @@ type FShootGame() as x =
                                           0.0f,
                                           Color.Red,
                                           true)
-
-//                TextManager.Instance.DrawText(Vector2(200.0f, 600.0f),
-//                                              "TEST TEXT",
-//                                              5.0f,
-//                                              1.0f,
-//                                              0.0f,
-//                                              Color.Black,
-//                                              false)
-//
-//                TextManager.Instance.DrawText(Vector2(600.0f, 600.0f),
-//                                              "DOT.MATRIX",
-//                                              5.0f,
-//                                              2.0f,
-//                                              0.5f,
-//                                              Color.Black,
-//                                              false)
-//
-//                TextManager.Instance.DrawText(Vector2(800.0f, 500.0f),
-//                                              "JITTERY",
-//                                              6.0f,
-//                                              2.0f,
-//                                              1.0f,
-//                                              Color.Magenta,
-//                                              true)
 
                 if ks.IsKeyDown(Keys.Z) || ks.IsKeyDown(Keys.Space) || ks.IsKeyDown(Keys.LeftControl) || ks.IsKeyDown(Keys.Enter) &&
                    not (lks.IsKeyDown(Keys.Z) || lks.IsKeyDown(Keys.Space) || lks.IsKeyDown(Keys.LeftControl) || lks.IsKeyDown(Keys.Enter)) then 
@@ -134,17 +116,16 @@ type FShootGame() as x =
 
                 if ks.IsKeyDown(Keys.Z) || ks.IsKeyDown(Keys.Space) || ks.IsKeyDown(Keys.LeftControl) || ks.IsKeyDown(Keys.Enter) then hero.Fire()
 
-                hero.Update(gameTime, boundsRect)
-                ProjectileManager.Instance.Update(gameTime) |> ignore 
-                PowerupManager.Instance.Update(gameTime) |> ignore
-                EnemyManager.Instance.Update(gameTime, boundsRect, hero) |> ignore
+                hero.Update addParticle (gameTime, boundsRect)
+                ProjectileManager.Instance.Update addParticle (gameTime) |> ignore 
+                PowerupManager.Instance.Update addParticle (gameTime) |> ignore
+                EnemyManager.Instance.Update addParticle (gameTime, boundsRect, hero) |> ignore
 
                 if not hero.Active then showingTitleScreen <- true
                     
-            ParticleManager.Instance.Update(gameTime) |> ignore
             
-            gameState <- { gameState with Particles = gameState.Particles |> List.map(fun p -> ParticlesTwo.UpdateParticle gameTime p) }
-            gameState <- { gameState with Particles = gameState.Particles |> ParticlesTwo.RemoveInactiveParticles }
+            gameState <- { gameState with Particles = gameState.Particles |> List.map(fun p -> UpdateParticle gameTime p) }
+            gameState <- { gameState with Particles = gameState.Particles |> RemoveInactiveParticles }
 
             x.Window.Title <- sprintf "Particles: %i" gameState.Particles.Length
 
@@ -157,8 +138,8 @@ type FShootGame() as x =
     override x.Draw (gameTime:GameTime) =
         graphics.GraphicsDevice.Clear (Color.White)
 
-        ParticleManager.Instance.Draw(spriteBatch)
-        gameState.Particles |> ParticlesTwo.DrawParticles spriteBatch particleTexture
+        //ParticleManager.Instance.Draw(spriteBatch)
+        gameState.Particles |> DrawParticles spriteBatch particleTexture
 
 
         base.Draw (gameTime)

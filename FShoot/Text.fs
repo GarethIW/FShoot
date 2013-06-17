@@ -8,7 +8,7 @@ open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Content
 open Microsoft.Xna.Framework.Audio
-open ParticlesTwo
+open FShoot.Particles
 
 module Text = 
 
