@@ -7,6 +7,7 @@ open Microsoft.Xna.Framework.Content
 open FShoot.Particles
 open FShoot.Projectiles
 open FShoot.Powerups
+open FShoot.Text
 
 module Enemies = 
 
@@ -82,6 +83,16 @@ module Enemies =
                                                         this.Size * 4.0f,
                                                         0.0f, -0.2f + (float32(Helper.Rand.NextDouble()) * 0.4f),
                                                         0.3f)
+                let award = (if this.IsBoss then 1000 else 100)
+                hero.Score <- hero.Score + award
+                TextManager.Instance.DrawText(this.Position,
+                                          sprintf "%i" award,
+                                          4.0f,
+                                          2.0f,
+                                          0.0f,
+                                          Color(1.0f,0.3f,0.3f),
+                                          1000.0f,
+                                          false)
                 if Helper.Rand.Next(5) = 1 || this.IsBoss || PowerupManager.Instance.KillsSinceLastPowerup >=4 then 
                     PowerupManager.Instance.Spawn(this.Position, Vector2(0.0f, 4.0f), 3000.0f)
                     PowerupManager.Instance.KillsSinceLastPowerup <- 0
@@ -134,6 +145,7 @@ module Enemies =
                                         PowerupManager.Instance.KillsSinceLastPowerup <- 0
                                 if shape.[x,y] <= 0.0f then
                                     // Destroyed pixel particle
+                                    hero.Score <- hero.Score + 1
                                     ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
                                                             this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
                                                             Vector2(-0.5f + (float32(Helper.Rand.NextDouble())), -2.0f), Vector2(0.0f,0.1f),
@@ -217,6 +229,14 @@ module Enemies =
 
             // If there are no enemies left, start a new wave
             if activeCount = 0 then
+                TextManager.Instance.DrawText(Vector2(float32 bounds.Left, float32 bounds.Top) + (Vector2(float32 bounds.Width, float32 bounds.Height)/2.0f),
+                                          sprintf "WAVE %i" (waveNumber + 1),
+                                          30.0f,
+                                          20.0f,
+                                          0.0f,
+                                          Color(1.0f,0.98f,0.98f),
+                                          2000.0f,
+                                          false)
                 waveNumber <- waveNumber + 1
                 hero.RegenHealth()
                 // This is where we introduce some "progression" into the game

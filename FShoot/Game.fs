@@ -81,6 +81,7 @@ type FShootGame() as x =
                                           20.0f,
                                           0.0f,
                                           Color.Red,
+                                          0.0f,
                                           true)
 
 //                TextManager.Instance.DrawText(Vector2(200.0f, 600.0f),
@@ -108,7 +109,7 @@ type FShootGame() as x =
 //                                              true)
 
                 if ks.IsKeyDown(Keys.Z) || ks.IsKeyDown(Keys.Space) || ks.IsKeyDown(Keys.LeftControl) || ks.IsKeyDown(Keys.Enter) &&
-                   not (lks.IsKeyDown(Keys.Z) || lks.IsKeyDown(Keys.Space) || lks.IsKeyDown(Keys.LeftControl) || lks.IsKeyDown(Keys.Enter)) then 
+                   (lks.IsKeyDown(Keys.Z) = false && lks.IsKeyDown(Keys.Space) = false && lks.IsKeyDown(Keys.LeftControl) = false && lks.IsKeyDown(Keys.Enter) = false) then 
                     showingTitleScreen <- false
                     hero <- new Hero(Vector2(float32 x.GraphicsDevice.Viewport.Bounds.Center.X, float32 x.GraphicsDevice.Viewport.Bounds.Bottom - 50.0f), Color.DeepSkyBlue)
 

@@ -8,6 +8,7 @@ open FShoot.Particles
 open FShoot.Projectiles
 open FShoot.Powerups
 open FShoot.Audio
+open FShoot.Text
 
 type Hero(pos, tint) as this = 
         [<DefaultValue>] val mutable Position : Vector2
@@ -16,6 +17,7 @@ type Hero(pos, tint) as this =
         [<DefaultValue>] val mutable Size : float32
         [<DefaultValue>] val mutable Active : bool
         [<DefaultValue>] val mutable PowerupLevel : int
+        [<DefaultValue>] val mutable Score : int
         let mutable gunCooldownTime = 250.0f
         let mutable gunCooldown = 0.0f
         let mutable hitbox = Rectangle(0,0,1,1)
@@ -35,6 +37,7 @@ type Hero(pos, tint) as this =
             this.Size <- 8.0f
             this.Active <- true
             this.PowerupLevel <- 0
+            this.Score <- 0
 
         member this.Update(gameTime:GameTime, bounds: Rectangle) =
 
@@ -88,6 +91,14 @@ type Hero(pos, tint) as this =
                                 shape.[x,y] <- 0.3f
                                 p.Life <- 0.0f
                                 if this.PowerupLevel > 0 then this.PowerupLevel <- this.PowerupLevel - 1
+                                TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                                          sprintf "POWER DOWN",
+                                          4.0f,
+                                          2.0f,
+                                          0.0f,
+                                          Color(1.0f,0.3f,0.3f),
+                                          1000.0f,
+                                          false)
                                 ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
                                                         this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
                                                         Vector2(-0.5f + (float32(Helper.Rand.NextDouble())), -2.0f), Vector2(0.0f,0.1f),
@@ -107,7 +118,26 @@ type Hero(pos, tint) as this =
                 hitbox.Inflate(20,20)
                 if hitbox.Contains(int p.Position.X, int p.Position.Y) then
                     p.Active <- false
-                    if this.PowerupLevel< 9 then this.PowerupLevel <- this.PowerupLevel + 1
+                    if this.PowerupLevel< 9 then 
+                        this.PowerupLevel <- this.PowerupLevel + 1
+                        TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                                          sprintf "POWER UP",
+                                          4.0f,
+                                          2.0f,
+                                          0.0f,
+                                          Color(1.0f,0.3f,0.3f),
+                                          1000.0f,
+                                          false)
+                    else
+                        this.Score <- this.Score + 500
+                        TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                                          sprintf "500",
+                                          5.0f,
+                                          2.0f,
+                                          0.0f,
+                                          Color(1.0f,0.3f,0.3f),
+                                          1000.0f,
+                                          false)
 
         member this.CheckEnemyCollision(hb:Rectangle) =
             if this.Active then
