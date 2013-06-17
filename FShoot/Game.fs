@@ -108,10 +108,11 @@ type FShootGame() as x =
 //                                              Color.Magenta,
 //                                              true)
 
-                if ks.IsKeyDown(Keys.Z) || ks.IsKeyDown(Keys.Space) || ks.IsKeyDown(Keys.LeftControl) || ks.IsKeyDown(Keys.Enter) &&
+                if (ks.IsKeyDown(Keys.Z) || ks.IsKeyDown(Keys.Space) || ks.IsKeyDown(Keys.LeftControl) || ks.IsKeyDown(Keys.Enter)) &&
                    (lks.IsKeyDown(Keys.Z) = false && lks.IsKeyDown(Keys.Space) = false && lks.IsKeyDown(Keys.LeftControl) = false && lks.IsKeyDown(Keys.Enter) = false) then 
                     showingTitleScreen <- false
                     hero <- new Hero(Vector2(float32 x.GraphicsDevice.Viewport.Bounds.Center.X, float32 x.GraphicsDevice.Viewport.Bounds.Bottom - 50.0f), Color.DeepSkyBlue)
+                    EnemyManager.Instance.Reset()
 
 
             // In-game! (Not showing title screen)
@@ -119,9 +120,6 @@ type FShootGame() as x =
                 let boundsRect = x.GraphicsDevice.Viewport.Bounds
                 boundsRect.Inflate(-100, 0)
 
-                
-
-                
                 if ks.IsKeyDown(Keys.Left) || ks.IsKeyDown(Keys.A) then hero.Move(-1.0f) // hero.Speed.X <- hero.Speed.X - 0.3f
                 else if ks.IsKeyDown(Keys.Right) || ks.IsKeyDown(Keys.D) then hero.Move (1.0f) //then hero.Speed.X <- hero.Speed.X + 0.3f
                 else hero.Speed.X <- MathHelper.Lerp(hero.Speed.X, 0.0f, 0.1f)
@@ -137,10 +135,10 @@ type FShootGame() as x =
                     
             ParticleManager.Instance.Update(gameTime) |> ignore
 
+            x.Window.Title <- sprintf "Particles %i" ParticleManager.Instance.Particles.Count
+
             lks <- ks
             lgs <- gs
-
-            x.Window.Title <- sprintf "Particles %i" ParticleManager.Instance.Particles.Count
 
         base.Update (gameTime)
 

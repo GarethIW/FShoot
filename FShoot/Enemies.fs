@@ -260,6 +260,14 @@ module Enemies =
             en.Active <- true
             en.GenerateShape()
 
+        member this.Reset() =
+            waveNumber <- 0
+            waveEnemySize <- 8.0f
+            waveSpacing <- 100.0f
+            waveColumns <- 2
+            waveRows <- 1
+            waveSpeed <- 2.0f   
+            for en in Enemies do en.Active <- false
 
 
 
