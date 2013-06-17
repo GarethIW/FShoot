@@ -96,14 +96,7 @@ type Hero(pos, tint) as this =
                                 shape.[x,y] <- 0.3f
                                 p.Life <- 0.0f
                                 if this.PowerupLevel > 0 then this.PowerupLevel <- this.PowerupLevel - 1
-				TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
-                                          sprintf "POWER DOWN",
-                                          4.0f,
-                                          2.0f,
-                                          0.0f,
-                                          Color(1.0f,0.3f,0.3f),
-                                          1000.0f,
-                                          false)
+<<<<<<< HEAD
                                 addParticle {
                                     Source = Rectangle(1,1,1,1)
                                     Position = this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size)
@@ -118,6 +111,25 @@ type Hero(pos, tint) as this =
                                     Alpha = 1.0f
                                     Active = true
                                     }
+=======
+                                TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                                          sprintf "POWER DOWN",
+                                          4.0f,
+                                          2.0f,
+                                          0.0f,
+                                          Color(1.0f,0.3f,0.3f),
+                                          1000.0f,
+                                          false)
+                                ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
+                                                        this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
+                                                        Vector2(-0.5f + (float32(Helper.Rand.NextDouble())), -2.0f), Vector2(0.0f,0.1f),
+                                                        1000.0f,
+                                                        0.01f,
+                                                        this.Tint,
+                                                        this.Size * 3.0f,
+                                                        0.0f, -0.5f + (float32(Helper.Rand.NextDouble())),
+                                                        1.0f)
+>>>>>>> master
 
         member this.CheckPowerupCollision(p:Powerup) =
             if this.Active then
