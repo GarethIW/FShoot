@@ -131,6 +131,8 @@ type FShootGame() as x =
                 PowerupManager.Instance.Update(gameTime) |> ignore
                 EnemyManager.Instance.Update(gameTime, boundsRect, hero) |> ignore
 
+                TextManager.Instance.DrawText(Vector2(float32 x.GraphicsDevice.Viewport.Bounds.Center.X, 20.0f), sprintf "%i" hero.Score, 5.0f, 2.0f, 0.0f, Color.Black, 0.0f, false)
+
                 if not hero.Active then showingTitleScreen <- true
                     
             ParticleManager.Instance.Update(gameTime) |> ignore
