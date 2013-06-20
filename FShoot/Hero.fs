@@ -158,8 +158,8 @@ type Hero(pos, tint) as this =
                     for x in 0 .. 7 do
                         ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
                                                         this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
-                                                        Vector2(-2.5f + (float32(Helper.Rand.NextDouble()) * 5.0f), -5.0f), Vector2(0.0f,0.1f),
-                                                        1000.0f,
+                                                        Vector2(-2.5f + (float32(Helper.Rand.NextDouble()) * 5.0f), -7.0f), Vector2(0.0f,0.1f),
+                                                        3000.0f,
                                                         0.01f,
                                                         this.Tint,
                                                         this.Size * 3.0f,

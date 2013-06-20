@@ -177,10 +177,9 @@ module Enemies =
 
 
 
-    type EnemyManager() =
+    type EnemyManager() as this =
         let MAX_ENEMIES = 100
         let Enemies = [| for i in 0 .. MAX_ENEMIES -> new Enemy() |]
-        let mutable waveNumber = 0
         let mutable waveEnemySize = 8.0f
         let mutable waveSpacing = 100.0f
         let mutable waveColumns = 2
@@ -188,15 +187,19 @@ module Enemies =
         let mutable waveSpeed = 2.0f
         static let instance = new EnemyManager()
         static member internal Instance = instance 
+        [<DefaultValue>] val mutable WaveNumber : int
+        do
+            this.WaveNumber <- 0
+
 
         // Generate a new wave of enemies
         // Again, this is random and mirrored vertically
         // We can alter the number of columns, rows and spacing of the wave grid
         // as well as the size of the spawned enemies
         member this.NewWave(bounds: Rectangle) =
-            if waveNumber % 5 = 0 then
+            if this.WaveNumber % 5 = 0 then
                 // Boss wave every five waves
-                for i in 1 .. waveNumber / 5 do
+                for i in 1 .. this.WaveNumber / 5 do
                     this.Spawn(true, Vector2(float32 bounds.Center.X, float32 bounds.Top - 300.0f), 0.02f, Vector2(float32 bounds.X + (float32(Helper.Rand.NextDouble()) * float32 bounds.Width), float32 bounds.Y + (float32(Helper.Rand.NextDouble()) * (float32 bounds.Height - 200.0f))), 100.0f, Color(Vector3(float32(Helper.Rand.NextDouble()) * 0.5f, float32(Helper.Rand.NextDouble()) * 0.5f, float32(Helper.Rand.NextDouble()) * 0.5f) + Vector3(0.3f,0.3f,0.3f)), 15.0f) 
             else
                 // Standard wave
@@ -217,7 +220,7 @@ module Enemies =
             for e in Enemies do
                 if e.Active then 
                     activeCount <- activeCount + 1
-                    e.Update(gameTime, waveSpeed, waveNumber, bounds, hero)
+                    e.Update(gameTime, waveSpeed, this.WaveNumber, bounds, hero)
 
                     // Move the wave in the opposite direction if one of the enemies hits the edge of our boundaries
                     if (waveSpeed > 0.0f && e.Position.X > float32 bounds.Right) || (waveSpeed < 0.0f && e.Position.X < float32 bounds.Left) then 
@@ -225,26 +228,26 @@ module Enemies =
                         for e in Enemies do e.Target.Y <- e.Target.Y + 10.0f
 
                     // Check for projectile collisions against each enemy and each projectile
-                    ProjectileManager.Instance.Projectiles.ForEach(fun p -> e.CheckCollision(p, waveNumber, hero))
+                    ProjectileManager.Instance.Projectiles.ForEach(fun p -> e.CheckCollision(p, this.WaveNumber, hero))
 
             // If there are no enemies left, start a new wave
             if activeCount = 0 then
                 TextManager.Instance.DrawText(Vector2(float32 bounds.Left, float32 bounds.Top) + (Vector2(float32 bounds.Width, float32 bounds.Height)/2.0f),
-                                          sprintf "WAVE %i" (waveNumber + 1),
+                                          sprintf "WAVE %i" (this.WaveNumber + 1),
                                           30.0f,
                                           20.0f,
                                           0.0f,
                                           Color(1.0f,0.98f,0.98f),
                                           2000.0f,
                                           false)
-                waveNumber <- waveNumber + 1
+                this.WaveNumber <- this.WaveNumber + 1
                 hero.RegenHealth()
                 // This is where we introduce some "progression" into the game
-                if waveNumber % 6 = 0 && waveRows < 4 then
+                if this.WaveNumber % 6 = 0 && waveRows < 4 then
                     // Every 6 waves, we add a new row and reset the columns (up to a max of 4 rows)
                     waveRows <- waveRows + 1
                     waveColumns <- waveRows * 2
-                if waveNumber % 2 = 0 && waveColumns < 10 then
+                if this.WaveNumber % 2 = 0 && waveColumns < 10 then
                     // Every 2 waves, we add two new columns (up to a max of 12)
                     waveColumns <- waveColumns + 2
                 this.NewWave(bounds)
@@ -261,7 +264,7 @@ module Enemies =
             en.GenerateShape()
 
         member this.Reset() =
-            waveNumber <- 0
+            this.WaveNumber <- 0
             waveEnemySize <- 8.0f
             waveSpacing <- 100.0f
             waveColumns <- 2
