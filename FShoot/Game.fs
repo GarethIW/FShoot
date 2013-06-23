@@ -172,7 +172,7 @@ type FShootGame() as x =
                     
             ParticleManager.Instance.Update(gameTime) |> ignore
 
-            x.Window.Title <- sprintf "Particles %i" ParticleManager.Instance.Particles.Count
+            //x.Window.Title <- sprintf "Particles %i" ParticleManager.Instance.Particles.Count
 
             lks <- ks
             lgs <- gs

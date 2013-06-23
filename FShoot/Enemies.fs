@@ -112,6 +112,7 @@ module Enemies =
             if chance > difficultyCurve then chance <- difficultyCurve
             if Helper.Rand.Next(10 + (1000 - (chance * (1000 / difficultyCurve)))) = 1 then
                 timeSinceLastShot <- 0.0f
+                AudioManager.Instance.Play("enemyshoot", 0.5f, -0.25f + (float32(Helper.Rand.NextDouble()) * 0.5f)) |> ignore
                 if this.IsBoss then
                     // Boss has a random "spread" for the projectile
                     ProjectileManager.Instance.Spawn(ProjectileOwner.Enemy, this.Position + Vector2(-20.0f + (float32(Helper.Rand.NextDouble()) * 40.0f), 20.0f), Vector2(0.0f, 4.0f + (float32 waveNumber / 10.0f)), 5000.0f, Color.Purple, 4.0f)
@@ -147,6 +148,7 @@ module Enemies =
                                         PowerupManager.Instance.KillsSinceLastPowerup <- 0
                                 if shape.[x,y] <= 0.0f then
                                     // Destroyed pixel particle
+                                    AudioManager.Instance.Play("enemyhit", 0.2f, -0.25f + (float32(Helper.Rand.NextDouble()) * 0.5f)) |> ignore
                                     hero.Score <- hero.Score + 1
                                     ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
                                                             this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),

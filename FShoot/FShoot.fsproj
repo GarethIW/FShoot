@@ -75,6 +75,22 @@
       <Link>content\SFX\shieldhit.xnb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\FShoot.XNA\FShoot.XNA\bin\x86\Debug\Content\SFX\enemyhit.xnb">
+      <Link>content\SFX\enemyhit.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FShoot.XNA\FShoot.XNA\bin\x86\Debug\Content\SFX\enemyshoot.xnb">
+      <Link>content\SFX\enemyshoot.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FShoot.XNA\FShoot.XNA\bin\x86\Debug\Content\SFX\powerup.xnb">
+      <Link>content\SFX\powerup.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FShoot.XNA\FShoot.XNA\bin\x86\Debug\Content\SFX\playerdie.xnb">
+      <Link>content\SFX\playerdie.xnb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework">
