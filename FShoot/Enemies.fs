@@ -264,6 +264,7 @@ module Enemies =
 
             // If there are no enemies left, start a new wave
             if activeCount = 0 then
+                AudioManager.Instance.Play("newwave", 1.0f) |> ignore
                 TextManager.Instance.DrawText addParticle (Vector2(float32 bounds.Left, float32 bounds.Top) + (Vector2(float32 bounds.Width, float32 bounds.Height)/2.0f),
                                           sprintf "WAVE %i" (this.WaveNumber + 1),
                                           30.0f,
