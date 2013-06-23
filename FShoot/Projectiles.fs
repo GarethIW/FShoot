@@ -71,6 +71,9 @@ module Projectiles =
         member this.Spawn(owner, pos, speed, life, tint, size) =
             this.Projectiles.Add(Projectile(owner, pos, speed, life, tint, size))
 
+        member this.Reset() =
+            for p in this.Projectiles do p.Active <- false
+
 
    
 

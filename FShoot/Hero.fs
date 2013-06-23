@@ -95,8 +95,9 @@ type Hero(pos, tint) as this =
                             if phb.Contains(int p.Position.X, int p.Position.Y) then
                                 shape.[x,y] <- 0.3f
                                 p.Life <- 0.0f
-                                if this.PowerupLevel > 0 then this.PowerupLevel <- this.PowerupLevel - 1
-                                TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                                if this.PowerupLevel > 0 then 
+                                    this.PowerupLevel <- this.PowerupLevel - 1
+                                    TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
                                           sprintf "POWER DOWN",
                                           4.0f,
                                           2.0f,
@@ -128,6 +129,7 @@ type Hero(pos, tint) as this =
                 hitbox.Inflate(20,20)
                 if hitbox.Contains(int p.Position.X, int p.Position.Y) then
                     p.Active <- false
+                    AudioManager.Instance.Play("powerup", 1.0f) |> ignore
                     if this.PowerupLevel< 9 then 
                         this.PowerupLevel <- this.PowerupLevel + 1
                         TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
@@ -180,6 +182,8 @@ type Hero(pos, tint) as this =
                             Active = true
                             }
             this.Active <- false
+            AudioManager.Instance.Play("playerdie", 1.0f) |> ignore
+
 
         member this.Fire() =
             if this.Active then
