@@ -227,3 +227,11 @@ type Hero(pos, tint) as this =
                                 Alpha = 1.0f
                                 Active = true
                                 }
+                            TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                                          sprintf "REPAIRED",
+                                          5.0f,
+                                          2.0f,
+                                          0.0f,
+                                          Color(0.3f,0.3f,1.0f),
+                                          1000.0f,
+                                          false)
