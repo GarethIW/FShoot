@@ -252,7 +252,7 @@ module Enemies =
             for e in Enemies do
                 if e.Active then 
                     activeCount <- activeCount + 1
-                    e.Update addParticle (gameTime, waveSpeed, waveNumber, bounds, hero)
+                    e.Update addParticle (gameTime, waveSpeed, this.WaveNumber, bounds, hero)
 
                     // Move the wave in the opposite direction if one of the enemies hits the edge of our boundaries
                     if (waveSpeed > 0.0f && e.Position.X > float32 bounds.Right) || (waveSpeed < 0.0f && e.Position.X < float32 bounds.Left) then 
@@ -260,19 +260,19 @@ module Enemies =
                         for e in Enemies do e.Target.Y <- e.Target.Y + 10.0f
 
                     // Check for projectile collisions against each enemy and each projectile
-                    ProjectileManager.Instance.Projectiles.ForEach(fun p -> e.CheckCollision addParticle (p, waveNumber, hero))
+                    ProjectileManager.Instance.Projectiles.ForEach(fun p -> e.CheckCollision addParticle (p, this.WaveNumber, hero))
 
             // If there are no enemies left, start a new wave
             if activeCount = 0 then
                 TextManager.Instance.DrawText addParticle (Vector2(float32 bounds.Left, float32 bounds.Top) + (Vector2(float32 bounds.Width, float32 bounds.Height)/2.0f),
-                                          sprintf "WAVE %i" (waveNumber + 1),
+                                          sprintf "WAVE %i" (this.WaveNumber + 1),
                                           30.0f,
                                           20.0f,
                                           0.0f,
                                           Color(1.0f,0.98f,0.98f),
                                           2000.0f,
                                           false)
-                waveNumber <- waveNumber + 1
+                this.WaveNumber <- this.WaveNumber + 1
                 hero.RegenHealth addParticle
                 // This is where we introduce some "progression" into the game
                 if this.WaveNumber % 6 = 0 && waveRows < 4 then
