@@ -100,6 +100,7 @@ type Hero(pos, tint) as this =
                                           Color(1.0f,0.3f,0.3f),
                                           1000.0f,
                                           false)
+                                AudioManager.Instance.Play("playerhit", 1.0f) |> ignore
                                 ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
                                                         this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
                                                         Vector2(-0.5f + (float32(Helper.Rand.NextDouble())), -2.0f), Vector2(0.0f,0.1f),

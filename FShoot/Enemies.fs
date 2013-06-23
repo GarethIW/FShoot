@@ -8,6 +8,7 @@ open FShoot.Particles
 open FShoot.Projectiles
 open FShoot.Powerups
 open FShoot.Text
+open FShoot.Audio
 
 module Enemies = 
 
@@ -74,6 +75,7 @@ module Enemies =
 
             if not this.Active then
                 // Enemy died, produce a death particle
+                AudioManager.Instance.Play("enemydie", 1.0f, -0.25f + (float32(Helper.Rand.NextDouble()) * 0.5f)) |> ignore
                 ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
                                                         this.Position,
                                                         Vector2(0.0f,0.0f), Vector2(0.0f,0.1f),
@@ -156,7 +158,8 @@ module Enemies =
                                                             0.0f, -0.5f + (float32(Helper.Rand.NextDouble())),
                                                             1.0f)
                                 else
-                                    // Boss "shield" particle
+                                    // "shield" particle
+                                    AudioManager.Instance.Play("shieldhit", 0.2f, -0.25f + (float32(Helper.Rand.NextDouble()) * 0.5f)) |> ignore
                                     ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
                                                             this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
                                                             Vector2.Zero, Vector2.Zero,
@@ -229,6 +232,7 @@ module Enemies =
 
             // If there are no enemies left, start a new wave
             if activeCount = 0 then
+                AudioManager.Instance.Play("newwave", 1.0f) |> ignore
                 TextManager.Instance.DrawText(Vector2(float32 bounds.Left, float32 bounds.Top) + (Vector2(float32 bounds.Width, float32 bounds.Height)/2.0f),
                                           sprintf "WAVE %i" (waveNumber + 1),
                                           30.0f,
