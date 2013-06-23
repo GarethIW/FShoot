@@ -81,7 +81,7 @@ type Hero(pos, tint) as this =
                                      int((Vector2(8.0f, 8.0f) * this.Size).Y))
 
                 ProjectileManager.Instance.Projectiles.ForEach(fun p -> this.CheckProjectileCollision addParticle (p))
-                PowerupManager.Instance.Powerups.ForEach(fun p -> this.CheckPowerupCollision(p))
+                PowerupManager.Instance.Powerups.ForEach(fun p -> this.CheckPowerupCollision(addParticle:Particle->unit)(p))
 
         member this.CheckProjectileCollision (addParticle:Particle->unit) (p:Projectile) =
             if hitbox.Contains(int p.Position.X, int p.Position.Y) && p.Owner = ProjectileOwner.Enemy then
@@ -95,7 +95,21 @@ type Hero(pos, tint) as this =
                             if phb.Contains(int p.Position.X, int p.Position.Y) then
                                 shape.[x,y] <- 0.3f
                                 p.Life <- 0.0f
+<<<<<<< HEAD
                                 if this.PowerupLevel > 0 then this.PowerupLevel <- this.PowerupLevel - 1
+                                TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+=======
+                                if this.PowerupLevel > 0 then 
+                                    this.PowerupLevel <- this.PowerupLevel - 1
+                                    TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+>>>>>>> master
+                                          sprintf "POWER DOWN",
+                                          4.0f,
+                                          2.0f,
+                                          0.0f,
+                                          Color(1.0f,0.3f,0.3f),
+                                          1000.0f,
+                                          false)
 <<<<<<< HEAD
                                 addParticle {
                                     Source = Rectangle(1,1,1,1)
@@ -111,15 +125,10 @@ type Hero(pos, tint) as this =
                                     Alpha = 1.0f
                                     Active = true
                                     }
+
+        member this.CheckPowerupCollision (addParticle:Particle->unit) (p:Powerup) =
 =======
-                                TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
-                                          sprintf "POWER DOWN",
-                                          4.0f,
-                                          2.0f,
-                                          0.0f,
-                                          Color(1.0f,0.3f,0.3f),
-                                          1000.0f,
-                                          false)
+                                AudioManager.Instance.Play("playerhit", 0.6f) |> ignore
                                 ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
                                                         this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
                                                         Vector2(-0.5f + (float32(Helper.Rand.NextDouble())), -2.0f), Vector2(0.0f,0.1f),
@@ -129,9 +138,9 @@ type Hero(pos, tint) as this =
                                                         this.Size * 3.0f,
                                                         0.0f, -0.5f + (float32(Helper.Rand.NextDouble())),
                                                         1.0f)
->>>>>>> master
 
         member this.CheckPowerupCollision(p:Powerup) =
+>>>>>>> master
             if this.Active then
                 hitbox <- Rectangle(int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).X),
                                          int((this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size)))).Y),
@@ -140,9 +149,10 @@ type Hero(pos, tint) as this =
                 hitbox.Inflate(20,20)
                 if hitbox.Contains(int p.Position.X, int p.Position.Y) then
                     p.Active <- false
+                    AudioManager.Instance.Play("powerup", 1.0f) |> ignore
                     if this.PowerupLevel< 9 then 
                         this.PowerupLevel <- this.PowerupLevel + 1
-                        TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                        TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
                                           sprintf "POWER UP",
                                           4.0f,
                                           2.0f,
@@ -152,7 +162,7 @@ type Hero(pos, tint) as this =
                                           false)
                     else
                         this.Score <- this.Score + 500
-                        TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                        TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
                                           sprintf "500",
                                           5.0f,
                                           2.0f,
@@ -177,6 +187,7 @@ type Hero(pos, tint) as this =
         member this.Die (addParticle:Particle->unit) = 
             for y in 0 .. 7 do
                     for x in 0 .. 7 do
+<<<<<<< HEAD
                         addParticle {
                             Source = Rectangle(1,1,1,1)
                             Position = this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size)
@@ -191,7 +202,20 @@ type Hero(pos, tint) as this =
                             Alpha = shape.[x,y]
                             Active = true
                             }
+=======
+                        ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
+                                                        this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
+                                                        Vector2(-2.5f + (float32(Helper.Rand.NextDouble()) * 5.0f), -7.0f), Vector2(0.0f,0.1f),
+                                                        3000.0f,
+                                                        0.01f,
+                                                        this.Tint,
+                                                        this.Size * 3.0f,
+                                                        0.0f, -0.5f + (float32(Helper.Rand.NextDouble())),
+                                                        shape.[x,y])
+>>>>>>> master
             this.Active <- false
+            AudioManager.Instance.Play("playerdie", 1.0f) |> ignore
+
 
         member this.Fire() =
             if this.Active then
@@ -220,6 +244,7 @@ type Hero(pos, tint) as this =
                         if (shape.[x,y] >= 0.3f && shape.[x,y] < 1.0f) && found = false then
                             found <- true
                             shape.[x,y] <- 1.0f
+<<<<<<< HEAD
                             addParticle {
                                 Source = Rectangle(1,1,1,1)
                                 Position = this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size)
@@ -234,3 +259,22 @@ type Hero(pos, tint) as this =
                                 Alpha = 1.0f
                                 Active = true
                                 }
+=======
+                            ParticleManager.Instance.Spawn(Rectangle(1,1,1,1), 
+                                                        this.Position + ((Vector2(-3.0f,-3.0f) * this.Size) + (Vector2.One * -(this.Size/2.0f))) + (Vector2(float32 x, float32 y) * this.Size),
+                                                        Vector2.Zero, Vector2.Zero,
+                                                        0.0f,
+                                                        0.1f,
+                                                        this.Tint,
+                                                        this.Size * 2.0f,
+                                                        0.0f, 0.0f,
+                                                        1.0f)
+                            TextManager.Instance.DrawText(this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),
+                                          sprintf "REPAIRED",
+                                          5.0f,
+                                          2.0f,
+                                          0.0f,
+                                          Color(0.3f,0.3f,1.0f),
+                                          1000.0f,
+                                          false)
+>>>>>>> master
