@@ -95,6 +95,7 @@ type Hero(pos, tint) as this =
                             if phb.Contains(int p.Position.X, int p.Position.Y) then
                                 shape.[x,y] <- 0.3f
                                 p.Life <- 0.0f
+                                AudioManager.Instance.Play("playerhit", 0.6f) |> ignore
                                 if this.PowerupLevel > 0 then 
                                     this.PowerupLevel <- this.PowerupLevel - 1
                                     TextManager.Instance.DrawText addParticle (this.Position + Vector2(0.0f, -(50.0f + (float32(Helper.Rand.NextDouble()) * 25.0f))),

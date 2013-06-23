@@ -86,6 +86,7 @@ module Enemies =
 
             if not this.Active then
                 // Enemy died, produce a death particle
+                AudioManager.Instance.Play("enemydie", 1.0f, -0.25f + (float32(Helper.Rand.NextDouble()) * 0.5f)) |> ignore
                 addParticle {
                     Source = Rectangle(1,1,1,1)
                     Position = this.Position
