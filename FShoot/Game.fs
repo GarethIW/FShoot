@@ -26,6 +26,11 @@ type FShootGame() as x =
     let mutable lks = Keyboard.GetState()
     let mutable lgs = GamePad.GetState(PlayerIndex.One)
 
+    let mutable bestScore = 0
+    let mutable bestWave = 0
+    let mutable lastScore = 0
+    let mutable lastWave = 0
+
     // Awesome gamestate here!
     let mutable showingTitleScreen = true
     let mutable titlePopTime = 0.0f
@@ -75,6 +80,35 @@ type FShootGame() as x =
                                     Vector2(float32 x.GraphicsDevice.Viewport.Width, float32 x.GraphicsDevice.Viewport.Height)/4.0f) +
                                     Vector2(float32(Helper.Rand.NextDouble()) * (float32 x.GraphicsDevice.Viewport.Width / 2.0f), float32(Helper.Rand.NextDouble()) * (float32 x.GraphicsDevice.Viewport.Height / 2.0f))
 
+                
+
+                TextManager.Instance.DrawText(Vector2(float32 x.GraphicsDevice.Viewport.Width, float32 x.GraphicsDevice.Viewport.Height)/2.0f + Vector2(0.0f, 100.0f),
+                                              "SPACE TO PLAY",
+                                              5.0f,
+                                              1.0f,
+                                              0.0f,
+                                              Color.Purple,
+                                              0.0f,
+                                              false)
+
+                TextManager.Instance.DrawText(Vector2(0.0f, float32 x.GraphicsDevice.Viewport.Height) + Vector2(200.0f, - 50.0f),
+                                              sprintf "BEST - %i WAVE %i" bestScore bestWave,
+                                              3.0f,
+                                              1.0f,
+                                              0.0f,
+                                              Color.Black,
+                                              0.0f,
+                                              false)
+
+                TextManager.Instance.DrawText(Vector2(float32 x.GraphicsDevice.Viewport.Width, float32 x.GraphicsDevice.Viewport.Height) + Vector2(-200.0f, - 50.0f),
+                                              sprintf "PREV - %i WAVE %i" lastScore lastWave,
+                                              3.0f,
+                                              1.0f,
+                                              0.0f,
+                                              Color.Black,
+                                              0.0f,
+                                              false)
+
                 TextManager.Instance.DrawText((if titlePopTime > 0.0f then titlePopPos else Vector2(float32 x.GraphicsDevice.Viewport.Width, float32 x.GraphicsDevice.Viewport.Height)/2.0f),
                                           "FSHOOT",
                                           (if titlePopTime > 0.0f then 35.0f else 20.0f),
@@ -83,15 +117,8 @@ type FShootGame() as x =
                                           Color.Red,
                                           0.0f,
                                           true)
-
-//                TextManager.Instance.DrawText(Vector2(200.0f, 600.0f),
-//                                              "TEST TEXT",
-//                                              5.0f,
-//                                              1.0f,
-//                                              0.0f,
-//                                              Color.Black,
-//                                              false)
 //
+
 //                TextManager.Instance.DrawText(Vector2(600.0f, 600.0f),
 //                                              "DOT.MATRIX",
 //                                              5.0f,
@@ -113,6 +140,7 @@ type FShootGame() as x =
                     showingTitleScreen <- false
                     hero <- new Hero(Vector2(float32 x.GraphicsDevice.Viewport.Bounds.Center.X, float32 x.GraphicsDevice.Viewport.Bounds.Bottom - 50.0f), Color.DeepSkyBlue)
                     EnemyManager.Instance.Reset()
+                    ProjectileManager.Instance.Reset()
 
 
             // In-game! (Not showing title screen)
@@ -131,7 +159,16 @@ type FShootGame() as x =
                 PowerupManager.Instance.Update(gameTime) |> ignore
                 EnemyManager.Instance.Update(gameTime, boundsRect, hero) |> ignore
 
-                if not hero.Active then showingTitleScreen <- true
+                TextManager.Instance.DrawText(Vector2(float32 x.GraphicsDevice.Viewport.Bounds.Center.X, 20.0f), sprintf "%i" hero.Score, 5.0f, 2.0f, 0.0f, Color.Black, 0.0f, false)
+
+                if not hero.Active then 
+                    showingTitleScreen <- true
+                    if hero.Score > bestScore then 
+                        bestScore <- hero.Score
+                        bestWave <- EnemyManager.Instance.WaveNumber
+
+                    lastScore <- hero.Score
+                    lastWave <- EnemyManager.Instance.WaveNumber
                     
             ParticleManager.Instance.Update(gameTime) |> ignore
 

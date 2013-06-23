@@ -18,12 +18,12 @@ module Audio =
 
         member this.LoadContent(content:ContentManager) = 
             SFX.Add("shoot", content.Load<SoundEffect>("sfx/shoot"))
-            //SFX.Add("shoot", content.Load<SoundEffect>("damage-enemy"))
-            //SFX.Add("shoot", content.Load<SoundEffect>("powerup"))
-            SFX.Add("enemydie", content.Load<SoundEffect>("sfx/enemydie"))
-            SFX.Add("newwave", content.Load<SoundEffect>("sfx/newwave"))
-            SFX.Add("playerhit", content.Load<SoundEffect>("sfx/playerhit"))
-            SFX.Add("shieldhit", content.Load<SoundEffect>("sfx/shieldhit"))
+//            SFX.Add(content.Load<SoundEffect>("damage-enemy"))
+//            SFX.Add(content.Load<SoundEffect>("powerup"))
+//            SFX.Add(content.Load<SoundEffect>("powerdown"))
+//            SFX.Add(content.Load<SoundEffect>("hero-die"))
+//            SFX.Add(content.Load<SoundEffect>("wave-complete"))
+//            SFX.Add(content.Load<SoundEffect>("shield"))
 
         member this.Play(name) =
             this.Play(name, 1.0f)
